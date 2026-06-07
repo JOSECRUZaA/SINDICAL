@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Search, X, Edit, Bus } from 'lucide-react';
+import { Plus, Search, X, Edit, Bus, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Vehiculos = () => {
@@ -11,6 +11,8 @@ const Vehiculos = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [choferModal, setChoferModal] = useState({ show: false, vehiculo: null });
+  const [choferFormData, setChoferFormData] = useState({ id_chofer: '' });
   
   const [formData, setFormData] = useState({
     numero_disco: '',
@@ -87,6 +89,29 @@ const Vehiculos = () => {
     }
   };
 
+  const handleAssignChofer = async (e) => {
+    e.preventDefault();
+    if (!choferFormData.id_chofer) return;
+
+    try {
+      const { error } = await supabase.from('chofer_vehiculo').insert([{
+        id_vehiculo: choferModal.vehiculo.id_vehiculo,
+        id_afiliado: parseInt(choferFormData.id_chofer),
+        fecha_asignacion: new Date().toISOString().split('T')[0],
+        estado: 1
+      }]);
+
+      if (error) throw error;
+      
+      alert('Chofer asignado exitosamente.');
+      setChoferModal({ show: false, vehiculo: null });
+      setChoferFormData({ id_chofer: '' });
+      // fetchData() // no es estrictamente necesario ya que la tabla muestra propietarios, no choferes
+    } catch (error) {
+      alert('Error al asignar chofer: ' + error.message);
+    }
+  };
+
   const filtered = vehiculos.filter(v => 
     v.placa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     v.numero_disco?.toString().includes(searchTerm)
@@ -129,6 +154,7 @@ const Vehiculos = () => {
                   <th>Propietario</th>
                   <th>Vehículo</th>
                   <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -143,6 +169,11 @@ const Vehiculos = () => {
                       <span className={`badge ${v.estado === 'Operativo' ? 'badge-success' : 'badge-warning'}`}>
                         {v.estado}
                       </span>
+                    </td>
+                    <td>
+                      <button className="btn-outline" style={{padding: '0.25rem 0.5rem', border: '1px solid var(--primary-color)'}} title="Asignar Chofer" onClick={() => setChoferModal({ show: true, vehiculo: v })}>
+                        <UserPlus size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -217,6 +248,45 @@ const Vehiculos = () => {
               <div className="modal-footer">
                 <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>Cancelar</button>
                 <button type="submit" className="btn btn-primary">Guardar Vehículo</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Asignar Chofer */}
+      {choferModal.show && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{maxWidth: '400px'}}>
+            <div className="modal-header">
+              <h3 className="modal-title">Asignar Chofer Relevo</h3>
+              <button className="modal-close" onClick={() => setChoferModal({ show: false, vehiculo: null })}><X size={20} /></button>
+            </div>
+            
+            <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderBottom: '1px solid rgba(59, 130, 246, 0.2)', fontSize: '0.9rem' }}>
+              Vehículo: <strong>Placa {choferModal.vehiculo.placa}</strong> (Disco {choferModal.vehiculo.numero_disco})
+            </div>
+
+            <form onSubmit={handleAssignChofer}>
+              <div className="modal-body form-grid">
+                <div className="form-group full-width">
+                  <label className="form-label">Seleccione el Chofer</label>
+                  <select required value={choferFormData.id_chofer} onChange={e => setChoferFormData({ id_chofer: e.target.value })}>
+                    <option value="">Seleccione un afiliado/chofer...</option>
+                    {afiliados.map(a => (
+                      // Excluir al propietario actual de la lista para no redundar
+                      a.id_afiliado !== choferModal.vehiculo.id_propietario && (
+                        <option key={a.id_afiliado} value={a.id_afiliado}>
+                          {a.numero_afiliado} - {a.perfiles?.nombres}
+                        </option>
+                      )
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => setChoferModal({ show: false, vehiculo: null })}>Cancelar</button>
+                <button type="submit" className="btn btn-primary">Asignar Chofer</button>
               </div>
             </form>
           </div>

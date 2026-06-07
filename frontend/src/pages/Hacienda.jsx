@@ -5,12 +5,14 @@ import { Plus, X, DollarSign, CheckCircle } from 'lucide-react';
 const Hacienda = () => {
   const [obligaciones, setObligaciones] = useState([]);
   const [afiliados, setAfiliados] = useState([]);
+  const [tiposCuota, setTiposCuota] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   
   const [formData, setFormData] = useState({
     id_afiliado: '',
     tipo_obligacion: 'Cuota',
+    id_tipo_cuota: '',
     concepto: '',
     monto_total: '',
     fecha_limite: ''
@@ -25,6 +27,10 @@ const Hacienda = () => {
     const { data: afData } = await supabase.from('afiliados').select('id_afiliado, numero_afiliado, perfiles(nombres)');
     if (afData) setAfiliados(afData);
 
+    // Traer tipos de cuota
+    const { data: cuotasData } = await supabase.from('tipos_cuota').select('*');
+    if (cuotasData) setTiposCuota(cuotasData);
+
     // Traer obligaciones
     const { data, error } = await supabase
       .from('obligaciones_financieras')
@@ -37,12 +43,39 @@ const Hacienda = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.from('obligaciones_financieras').insert([formData]);
+    
+    let conceptoGuardar = formData.concepto;
+    
+    // Si seleccionó un tipo de cuota predefinido, usar ese nombre en el concepto
+    if (formData.tipo_obligacion === 'Cuota' && formData.id_tipo_cuota) {
+        const cuotaSelec = tiposCuota.find(t => t.id_tipo_cuota.toString() === formData.id_tipo_cuota.toString());
+        if (cuotaSelec && !conceptoGuardar) {
+            conceptoGuardar = cuotaSelec.nombre;
+        }
+    }
+
+    const { error } = await supabase.from('obligaciones_financieras').insert([{
+        ...formData,
+        id_tipo_cuota: formData.id_tipo_cuota ? parseInt(formData.id_tipo_cuota) : null,
+        concepto: conceptoGuardar
+    }]);
+    
     if (!error) {
       setShowModal(false);
-      setFormData({ id_afiliado: '', tipo_obligacion: 'Cuota', concepto: '', monto_total: '', fecha_limite: '' });
+      setFormData({ id_afiliado: '', tipo_obligacion: 'Cuota', id_tipo_cuota: '', concepto: '', monto_total: '', fecha_limite: '' });
       fetchData();
     } else alert('Error: ' + error.message);
+  };
+
+  const handleTipoCuotaChange = (e) => {
+    const id = e.target.value;
+    const cuota = tiposCuota.find(t => t.id_tipo_cuota.toString() === id);
+    setFormData({
+        ...formData, 
+        id_tipo_cuota: id, 
+        monto_total: cuota ? cuota.monto_default : '',
+        concepto: cuota ? cuota.nombre : ''
+    });
   };
 
   const marcarPagado = async (id) => {
@@ -135,10 +168,18 @@ const Hacienda = () => {
                   <label className="form-label">Tipo</label>
                   <select required value={formData.tipo_obligacion} onChange={e => setFormData({...formData, tipo_obligacion: e.target.value})}>
                     <option value="Cuota">Cuota</option>
-                    <option value="Multa">Multa</option>
                     <option value="Aporte Especial">Aporte Especial</option>
                   </select>
                 </div>
+                {formData.tipo_obligacion === 'Cuota' && tiposCuota.length > 0 && (
+                  <div className="form-group full-width">
+                    <label className="form-label">Clase de Cuota</label>
+                    <select value={formData.id_tipo_cuota} onChange={handleTipoCuotaChange}>
+                      <option value="">Otra Cuota / Manual...</option>
+                      {tiposCuota.map(t => <option key={t.id_tipo_cuota} value={t.id_tipo_cuota}>{t.nombre} ({t.monto_default} Bs)</option>)}
+                    </select>
+                  </div>
+                )}
                 <div className="form-group">
                   <label className="form-label">Monto (Bs)</label>
                   <input type="number" step="0.01" required value={formData.monto_total} onChange={e => setFormData({...formData, monto_total: e.target.value})} />

@@ -5,7 +5,9 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function test() {
-    const { data, error } = await supabase.from('obligaciones_financieras').select('*').limit(1);
-    console.log("Obligaciones:", data, error);
+    const { data: cuotas } = await supabase.from('tipos_cuota').select('*');
+    const { data: multas } = await supabase.from('tipos_multa').select('*');
+    console.log("Cuotas:", cuotas);
+    console.log("Multas:", multas);
 }
 test();
