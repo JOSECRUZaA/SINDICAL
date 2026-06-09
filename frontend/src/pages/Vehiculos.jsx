@@ -96,7 +96,7 @@ const Vehiculos = () => {
     try {
       const { error } = await supabase.from('chofer_vehiculo').insert([{
         id_vehiculo: choferModal.vehiculo.id_vehiculo,
-        id_afiliado: parseInt(choferFormData.id_chofer),
+        id_chofer: parseInt(choferFormData.id_chofer),
         fecha_asignacion: new Date().toISOString().split('T')[0],
         estado: 1
       }]);

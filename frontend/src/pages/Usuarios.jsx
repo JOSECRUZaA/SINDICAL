@@ -216,8 +216,8 @@ const Usuarios = () => {
                         onChange={(e) => handleRoleChange(u.id_perfil, e.target.value)}
                         style={{
                           background: 'rgba(0,0,0,0.3)', 
-                          color: u.rol === 'Administrador' ? '#f59e0b' : '#fff',
-                          border: '1px solid rgba(255,255,255,0.1)',
+                          color: u.rol === 'Administrador' ? 'var(--secondary-color)' : '#fff',
+                          border: '1px solid var(--border-color)',
                           padding: '0.25rem',
                           borderRadius: '0.25rem',
                           fontWeight: u.rol === 'Administrador' ? 'bold' : 'normal'
@@ -253,100 +253,101 @@ const Usuarios = () => {
 
       {/* Modal Crear/Editar Usuario */}
       {showModal && (
-        <div className="modal-overlay" style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(15, 23, 42, 0.7)' }}>
+        <div className="modal-overlay" style={{ backdropFilter: 'blur(4px)', backgroundColor: 'rgba(15, 23, 42, 0.4)' }}>
           <div className="modal-content" style={{
             maxWidth: '600px', 
-            background: 'linear-gradient(180deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.95) 100%)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            background: '#ffffff',
+            border: '1px solid var(--border-color)',
+            boxShadow: 'var(--shadow-xl)',
             borderRadius: '12px',
             overflow: 'hidden'
           }}>
             <div className="modal-header" style={{ 
-              background: 'rgba(255,255,255,0.03)', 
-              borderBottom: '1px solid rgba(255,255,255,0.05)',
-              padding: '1.5rem'
+              background: 'var(--bg-color)', 
+              borderBottom: '1px solid var(--border-color)',
+              padding: '1.5rem',
+              color: 'var(--primary-color)'
             }}>
-              <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.25rem' }}>
+              <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.25rem', margin: 0 }}>
                 <div style={{ background: 'var(--primary-color)', padding: '0.5rem', borderRadius: '8px', display: 'flex' }}>
                   {editingUser ? <Edit size={20} color="white" /> : <UserCog size={20} color="white" />}
                 </div>
                 {editingUser ? 'Editar Perfil de Usuario' : 'Registrar Nuevo Usuario'}
               </h3>
-              <button className="modal-close" onClick={() => setShowModal(false)} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.5rem', borderRadius: '50%' }}>
+              <button className="modal-close" onClick={() => setShowModal(false)} style={{ background: 'rgba(0,0,0,0.05)', color: 'var(--text-main)', padding: '0.5rem', borderRadius: '50%' }}>
                 <X size={18} />
               </button>
             </div>
             
             {editingUser && (
-              <div style={{ padding: '1rem 1.5rem', background: 'rgba(245, 158, 11, 0.1)', borderBottom: '1px solid rgba(245, 158, 11, 0.2)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <ShieldAlert size={16} color="#f59e0b" />
-                <span><strong style={{color: '#f59e0b'}}>Nota de Seguridad:</strong> El correo y contraseña son credenciales privadas, solo pueden actualizarse desde la gestión de la propia cuenta.</span>
+              <div style={{ padding: '1rem 1.5rem', background: 'rgba(192, 141, 74, 0.1)', borderBottom: '1px solid rgba(192, 141, 74, 0.2)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <ShieldAlert size={16} color="var(--secondary-color)" />
+                <span><strong style={{color: 'var(--secondary-color)'}}>Nota de Seguridad:</strong> El correo y contraseña son credenciales privadas, solo pueden actualizarse desde la gestión de la propia cuenta.</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
               <div className="modal-body form-grid custom-scrollbar" style={{ padding: '1.25rem 1.5rem', gap: '1rem', maxHeight: '60vh', overflowY: 'auto' }}>
                 <div className="form-group full-width">
-                  <label className="form-label" style={{ color: 'var(--text-muted)' }}>Nombres Completos</label>
+                  <label className="form-label" style={{ color: 'var(--text-main)', fontWeight: '500' }}>Nombres Completos</label>
                   <div style={{ position: 'relative' }}>
                     <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input type="text" required value={formData.nombres} onChange={e => setFormData({...formData, nombres: e.target.value})} style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.2)' }} />
+                    <input type="text" required value={formData.nombres} onChange={e => setFormData({...formData, nombres: e.target.value})} style={{ paddingLeft: '2.5rem' }} />
                   </div>
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label" style={{ color: 'var(--text-muted)' }}>Apellido Paterno</label>
-                  <input type="text" value={formData.paterno} onChange={e => setFormData({...formData, paterno: e.target.value})} style={{ background: 'rgba(0,0,0,0.2)' }} placeholder="(Opcional)" />
+                  <label className="form-label" style={{ color: 'var(--text-main)', fontWeight: '500' }}>Apellido Paterno</label>
+                  <input type="text" value={formData.paterno} onChange={e => setFormData({...formData, paterno: e.target.value})} placeholder="(Opcional)" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ color: 'var(--text-muted)' }}>Apellido Materno</label>
-                  <input type="text" value={formData.materno} onChange={e => setFormData({...formData, materno: e.target.value})} style={{ background: 'rgba(0,0,0,0.2)' }} placeholder="(Opcional)" />
+                  <label className="form-label" style={{ color: 'var(--text-main)', fontWeight: '500' }}>Apellido Materno</label>
+                  <input type="text" value={formData.materno} onChange={e => setFormData({...formData, materno: e.target.value})} placeholder="(Opcional)" />
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label" style={{ color: 'var(--text-muted)' }}>Cédula de Identidad</label>
+                  <label className="form-label" style={{ color: 'var(--text-main)', fontWeight: '500' }}>Cédula de Identidad</label>
                   <div style={{ position: 'relative' }}>
                     <CreditCard size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input type="text" required value={formData.ci} onChange={e => setFormData({...formData, ci: e.target.value})} style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.2)' }} />
+                    <input type="text" required value={formData.ci} onChange={e => setFormData({...formData, ci: e.target.value})} style={{ paddingLeft: '2.5rem' }} />
                   </div>
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label" style={{ color: 'var(--text-muted)' }}>Rol en el Sistema</label>
+                  <label className="form-label" style={{ color: 'var(--text-main)', fontWeight: '500' }}>Rol en el Sistema</label>
                   <div style={{ position: 'relative' }}>
                     <Shield size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary-color)' }} />
-                    <select value={formData.rol} onChange={e => setFormData({...formData, rol: e.target.value})} style={{ paddingLeft: '2.5rem', background: 'rgba(16, 185, 129, 0.1)', color: '#fff', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                      {ROLES.map(r => <option key={r} value={r} style={{background: '#1e293b'}}>{r}</option>)}
+                    <select value={formData.rol} onChange={e => setFormData({...formData, rol: e.target.value})} style={{ paddingLeft: '2.5rem', border: '1px solid var(--primary-color)', color: 'var(--primary-color)', fontWeight: '600' }}>
+                      {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
                   </div>
                 </div>
                 
-                <div className="form-group full-width" style={{ marginTop: '0', padding: '0.75rem', background: 'rgba(0,0,0,0.15)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <h4 style={{ marginBottom: '0.75rem', fontSize: '0.85rem', color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem' }}>Credenciales de Acceso</h4>
+                <div className="form-group full-width" style={{ marginTop: '0', padding: '1rem', background: 'var(--bg-color)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <h4 style={{ marginBottom: '0.75rem', fontSize: '0.85rem', color: 'var(--primary-color)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.25rem', fontWeight: 'bold' }}>Credenciales de Acceso</h4>
                   <div className="form-grid" style={{ gap: '0.75rem' }}>
                     <div className="form-group">
-                      <label className="form-label" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Correo Electrónico</label>
+                      <label className="form-label" style={{ color: 'var(--text-main)', fontSize: '0.8rem', fontWeight: '500' }}>Correo Electrónico</label>
                       <div style={{ position: 'relative' }}>
                         <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                        <input type="email" required disabled={!!editingUser} value={formData.correo} onChange={e => setFormData({...formData, correo: e.target.value})} style={{ paddingLeft: '2.5rem', background: editingUser ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.2)' }} />
+                        <input type="email" required disabled={!!editingUser} value={formData.correo} onChange={e => setFormData({...formData, correo: e.target.value})} style={{ paddingLeft: '2.5rem' }} />
                       </div>
                     </div>
                     
                     {!editingUser && (
                       <div className="form-group">
-                        <label className="form-label" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Contraseña Temporal</label>
+                        <label className="form-label" style={{ color: 'var(--text-main)', fontSize: '0.8rem', fontWeight: '500' }}>Contraseña Temporal</label>
                         <div style={{ position: 'relative' }}>
                           <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                          <input type="text" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="Mínimo 6 caracteres" minLength={6} style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.2)' }} />
+                          <input type="text" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="Mínimo 6 caracteres" minLength={6} style={{ paddingLeft: '2.5rem' }} />
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="modal-footer" style={{ padding: '1.25rem 1.5rem', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)} style={{ border: 'none', background: 'transparent' }}>Cancelar</button>
+              <div className="modal-footer" style={{ padding: '1.25rem 1.5rem', background: 'var(--bg-color)', borderTop: '1px solid var(--border-color)' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)} style={{ border: '1px solid var(--border-color)', background: '#fff' }}>Cancelar</button>
                 <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontWeight: 'bold' }}>
                   {editingUser ? 'Guardar Cambios' : 'Registrar Usuario'}
                 </button>

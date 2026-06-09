@@ -288,7 +288,7 @@ const Afiliados = () => {
                       onChange={handleInputChange}
                       placeholder={editingId ? '' : "Auto-asignado por el sistema"}
                       disabled={!editingId} /* Solo lectura si es nuevo */
-                      style={!editingId ? {backgroundColor: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)'} : {}}
+                      style={!editingId ? {backgroundColor: 'var(--border-color)', color: 'var(--text-muted)'} : {}}
                     />
                   </div>
 
@@ -382,7 +382,7 @@ const Afiliados = () => {
               </button>
             </div>
             
-            <div className="modal-body" style={{background: 'rgba(0,0,0,0.2)'}}>
+            <div className="modal-body" style={{background: 'var(--bg-color)'}}>
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem'}}>
                 
                 {/* Info Básica */}
@@ -401,7 +401,7 @@ const Afiliados = () => {
                   {loading360 ? <div className="spinner"></div> : vehiculos360.length === 0 ? <p className="text-muted">No tiene vehículos registrados.</p> : (
                     <ul style={{listStyle: 'none'}}>
                       {vehiculos360.map(v => (
-                        <li key={v.id_vehiculo} style={{padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
+                        <li key={v.id_vehiculo} style={{padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)'}}>
                           Disco <strong>#{v.numero_disco}</strong> - Placa: {v.placa} ({v.estado})
                         </li>
                       ))}
@@ -411,11 +411,11 @@ const Afiliados = () => {
 
                 {/* Historial Directiva */}
                 <div className="glass-panel" style={{padding: '1.5rem'}}>
-                  <h4 style={{color: '#f59e0b', marginBottom: '1rem'}}>Cargos en Directiva</h4>
+                  <h4 style={{color: 'var(--secondary-color)', marginBottom: '1rem'}}>Cargos en Directiva</h4>
                   {loading360 ? <div className="spinner"></div> : directiva360.length === 0 ? <p className="text-muted">Sin historial en directiva.</p> : (
                     <ul style={{listStyle: 'none'}}>
                       {directiva360.map(d => (
-                        <li key={d.id_historial} style={{padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
+                        <li key={d.id_historial} style={{padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)'}}>
                           {d.cargos_directiva?.nombre_cargo} 
                           <span className={`badge ${d.estado === 1 ? 'badge-success' : 'badge-neutral'}`} style={{marginLeft: '0.5rem', fontSize: '0.65rem'}}>
                             {d.estado === 1 ? 'En Funciones' : 'Finalizado'}
@@ -432,7 +432,7 @@ const Afiliados = () => {
                   {loading360 ? <div className="spinner"></div> : obligaciones360.length === 0 ? <p className="text-muted">Sin deudas pendientes.</p> : (
                     <ul style={{listStyle: 'none', maxHeight: '150px', overflowY: 'auto'}}>
                       {obligaciones360.map(o => (
-                        <li key={o.id_obligacion} style={{padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>
+                        <li key={o.id_obligacion} style={{padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)'}}>
                           {o.tipos_cuota?.nombre || o.tipos_multa?.concepto} - <strong>{o.monto_total} Bs</strong>
                           <span className={`badge ${o.estado === 'Pagado' ? 'badge-success' : 'badge-danger'}`} style={{marginLeft: '0.5rem', fontSize: '0.65rem'}}>
                             {o.estado}

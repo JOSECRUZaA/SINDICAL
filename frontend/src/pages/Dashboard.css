@@ -8,10 +8,8 @@
 /* Sidebar Styles */
 .sidebar {
   width: 260px;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: #ffffff;
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease-in-out;
@@ -25,7 +23,7 @@
   justify-content: space-between;
   height: 4rem;
   padding: 0 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .brand {
@@ -49,10 +47,10 @@
 }
 
 .user-name {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1.1rem;
   margin-top: 0.25rem;
-  color: #fff;
+  color: var(--text-main);
 }
 
 .user-role {
@@ -60,10 +58,11 @@
   margin-top: 0.5rem;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
+  font-weight: 600;
   border-radius: 0.25rem;
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--primary-color);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent-color);
+  border: 1px solid rgba(37, 99, 235, 0.2);
 }
 
 .nav-menu {
@@ -86,16 +85,23 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.95rem;
+  font-weight: 500;
 }
 
-.nav-item:hover, .nav-item.active {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+.nav-item:hover {
+  color: var(--primary-color);
+  background: rgba(22, 43, 76, 0.05);
+}
+
+.nav-item.active {
+  color: #ffffff;
+  background: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(22, 43, 76, 0.2);
 }
 
 .sidebar-footer {
   padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-color);
 }
 
 .logout-btn {
@@ -132,10 +138,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .mobile-menu-btn {
@@ -150,13 +156,13 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), #059669);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .content-area {
@@ -171,7 +177,8 @@
 
 .page-title {
   font-size: 1.75rem;
-  color: #fff;
+  color: var(--primary-color);
+  font-weight: 800;
 }
 
 /* Stats Grid */
@@ -201,10 +208,11 @@
 .stat-icon {
   padding: 0.75rem;
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(22, 43, 76, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--primary-color);
 }
 
 .stat-info {
@@ -220,13 +228,13 @@
 .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
 }
 
 /* Welcome Box */
 .welcome-box {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px dashed rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 1px dashed var(--border-color);
   border-radius: var(--radius-lg);
   padding: 4rem 2rem;
   display: flex;
@@ -237,7 +245,7 @@
 }
 
 .welcome-icon {
-  color: rgba(255, 255, 255, 0.1);
+  color: var(--border-color);
   margin-bottom: 1.5rem;
 }
 

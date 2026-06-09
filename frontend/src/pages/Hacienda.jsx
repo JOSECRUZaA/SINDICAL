@@ -100,7 +100,7 @@ const Hacienda = () => {
 
       <div className="stats-grid" style={{marginBottom: '1rem'}}>
         <div className="stat-card">
-          <div className="stat-icon" style={{color: '#f59e0b'}}><DollarSign size={28} /></div>
+          <div className="stat-icon" style={{color: 'var(--secondary-color)'}}><DollarSign size={28} /></div>
           <div className="stat-info"><div className="stat-label">Deuda Total Pendiente</div><div className="stat-value text-warning">Bs {obligaciones.filter(o => o.estado === 'Pendiente').reduce((acc, curr) => acc + Number(curr.monto_total), 0).toFixed(2)}</div></div>
         </div>
         <div className="stat-card">

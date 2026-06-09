@@ -115,7 +115,7 @@ const MiPortal = () => {
         
         {/* Panel Sindical */}
         <div className="glass-panel p-6">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
             <div className="avatar" style={{ width: '50px', height: '50px', fontSize: '1.5rem', backgroundColor: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}>
               <User size={24} />
             </div>
@@ -150,7 +150,7 @@ const MiPortal = () => {
 
         {/* Panel Vehículos */}
         <div className="glass-panel p-6">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
             <div className="avatar" style={{ width: '50px', height: '50px', backgroundColor: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}>
               <Bus size={24} />
             </div>
@@ -162,7 +162,7 @@ const MiPortal = () => {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {vehiculos.map(v => (
-                <div key={v.id_vehiculo} style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div key={v.id_vehiculo} style={{ background: 'rgba(0,0,0,0.03)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                     <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
                       Disco Nº {v.numero_disco}
@@ -185,7 +185,7 @@ const MiPortal = () => {
 
         {/* Panel Estado de Cuenta */}
         <div className="glass-panel p-6">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
             <div className="avatar" style={{ width: '50px', height: '50px', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
               <DollarSign size={24} />
             </div>
@@ -218,7 +218,7 @@ const MiPortal = () => {
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span className="text-muted font-medium">Total Deuda:</span>
                 <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#ef4444' }}>
                   {deudas.reduce((sum, item) => sum + parseFloat(item.monto_total), 0).toFixed(2)} Bs
@@ -231,8 +231,8 @@ const MiPortal = () => {
         {/* Panel Historial Directivo */}
         {directiva.length > 0 && (
           <div className="glass-panel p-6">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
-              <div className="avatar" style={{ width: '50px', height: '50px', backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+              <div className="avatar" style={{ width: '50px', height: '50px', backgroundColor: 'rgba(192, 141, 74, 0.2)', color: 'var(--secondary-color)' }}>
                 <Award size={24} />
               </div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '600' }}>Cargos en Directiva</h3>

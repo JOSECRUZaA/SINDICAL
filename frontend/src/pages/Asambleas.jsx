@@ -188,7 +188,7 @@ const Asambleas = () => {
                 </div>
                 <div className="form-group full-width">
                   <label className="form-label">Orden del Día</label>
-                  <textarea rows="4" style={{width:'100%', padding:'0.75rem', background:'rgba(0,0,0,0.2)', border:'1px solid rgba(255,255,255,0.1)', color:'#fff', borderRadius:'0.5rem'}} required value={formData.orden_dia} onChange={e => setFormData({...formData, orden_dia: e.target.value})}></textarea>
+                  <textarea rows="4" style={{width:'100%', padding:'0.75rem', background:'var(--bg-color)', border:'1px solid var(--border-color)', color:'var(--text-main)', borderRadius:'0.5rem'}} required value={formData.orden_dia} onChange={e => setFormData({...formData, orden_dia: e.target.value})}></textarea>
                 </div>
               </div>
               <div className="modal-footer">
@@ -223,14 +223,14 @@ const Asambleas = () => {
                 </thead>
                 <tbody>
                   {afiliados.map(a => (
-                    <tr key={a.id_afiliado} style={{borderBottom: '1px solid rgba(255,255,255,0.05)'}}>
+                    <tr key={a.id_afiliado} style={{borderBottom: '1px solid var(--border-color)'}}>
                       <td style={{padding: '1rem'}} className="font-medium">{a.numero_afiliado} - {a.perfiles?.nombres}</td>
                       <td style={{padding: '1rem'}}>
                         <select 
                           style={{
                             padding: '0.5rem', width: '100%', 
                             borderColor: asistenciaList[a.id_afiliado] === 'Falta' ? '#ef4444' : 
-                                         asistenciaList[a.id_afiliado] === 'Presente' ? '#10b981' : 'rgba(255,255,255,0.2)'
+                                         asistenciaList[a.id_afiliado] === 'Presente' ? '#10b981' : 'var(--border-color)'
                           }}
                           value={asistenciaList[a.id_afiliado]}
                           onChange={(e) => setAsistenciaList({...asistenciaList, [a.id_afiliado]: e.target.value})}
@@ -246,7 +246,7 @@ const Asambleas = () => {
                 </tbody>
               </table>
             </div>
-            <div className="modal-footer" style={{borderTop: '1px solid rgba(255,255,255,0.1)'}}>
+            <div className="modal-footer" style={{borderTop: '1px solid var(--border-color)'}}>
               <button className="btn btn-outline" onClick={() => setAsistenciaModal({show: false, asamblea: null})}>Cancelar</button>
               <button className="btn btn-primary" onClick={handleSaveAsistencia}>Guardar Asistencia y Multas</button>
             </div>

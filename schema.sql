@@ -77,6 +77,10 @@
         nombre_ruta VARCHAR(150),
         origen VARCHAR(100) NOT NULL,
         destino VARCHAR(100) NOT NULL,
+        origen_lat DECIMAL(10, 8),
+        origen_lng DECIMAL(11, 8),
+        destino_lat DECIMAL(10, 8),
+        destino_lng DECIMAL(11, 8),
         estado SMALLINT DEFAULT 1 CHECK (estado IN (0, 1))
     );
 

@@ -30,7 +30,7 @@
 
 .table-controls {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,7 +44,7 @@
 .search-box input {
   padding-left: 2.5rem;
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
 }
 
 .search-icon {
@@ -81,12 +81,12 @@ th {
 
 td {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
   font-size: 0.95rem;
 }
 
 tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .empty-state {
@@ -106,9 +106,9 @@ tbody tr:hover {
 }
 
 .badge-success { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
-.badge-warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2); }
+.badge-warning { background: rgba(192, 141, 74, 0.1); color: var(--secondary-color); border-color: rgba(192, 141, 74, 0.2); }
 .badge-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
-.badge-neutral { background: rgba(255, 255, 255, 0.1); color: #cbd5e1; border-color: rgba(255, 255, 255, 0.2); }
+.badge-neutral { background: rgba(0, 0, 0, 0.05); color: var(--text-muted); border-color: var(--border-color); }
 
 /* Modal Styles */
 .modal-overlay {
@@ -126,7 +126,7 @@ tbody tr:hover {
 
 .modal-content {
   background: var(--bg-color);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 800px;
@@ -144,7 +144,7 @@ tbody tr:hover {
 
 .modal-header {
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -166,8 +166,8 @@ tbody tr:hover {
 }
 
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--primary-color);
 }
 
 .modal-body {
@@ -177,7 +177,7 @@ tbody tr:hover {
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
   gap: 1rem;

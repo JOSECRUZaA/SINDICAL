@@ -112,7 +112,7 @@ const Infracciones = () => {
       </div>
 
       {/* TABS */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
         <button 
           onClick={() => setActiveTab('emitir')}
           style={{ 
@@ -169,8 +169,8 @@ const Infracciones = () => {
             {/* Tarjeta del Infractor (Aparece al encontrar) */}
             <div style={{ 
               minHeight: '80px', 
-              background: selectedVehiculo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.02)', 
-              border: `1px solid ${selectedVehiculo ? '#10b981' : 'rgba(255,255,255,0.1)'}`,
+              background: selectedVehiculo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.02)', 
+              border: `1px solid ${selectedVehiculo ? '#10b981' : 'var(--border-color)'}`,
               borderRadius: 'var(--radius-md)', 
               padding: '1rem',
               display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center'
@@ -235,7 +235,7 @@ const Infracciones = () => {
         {/* PANEL: TABLA DE MULTAS */}
         {activeTab === 'historial' && (
         <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: '600' }}>Infracciones Registradas</h3>
           </div>
           
@@ -243,7 +243,7 @@ const Infracciones = () => {
             {loading ? <div className="empty-state"><div className="spinner"></div></div> : (
               <table style={{ width: '100%', marginTop: '1rem' }}>
                 <thead>
-                  <tr style={{ textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                  <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
                     <th style={{ padding: '1rem 0' }}>Afiliado / Chofer</th>
                     <th>Infracción</th>
                     <th>Monto</th>
@@ -253,7 +253,7 @@ const Infracciones = () => {
                 </thead>
                 <tbody>
                   {multas.map(o => (
-                    <tr key={o.id_obligacion} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <tr key={o.id_obligacion} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '1rem 0' }} className="font-medium text-white">{o.afiliados?.perfiles?.nombres || o.afiliados?.numero_afiliado}</td>
                       <td>{o.tipos_multa?.concepto || o.concepto}</td>
                       <td className="font-bold text-danger">{o.monto_total} Bs</td>
