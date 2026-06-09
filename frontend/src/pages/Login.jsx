@@ -40,10 +40,10 @@ const Login = () => {
       <div className="login-card">
         
         <div className="login-header">
-          <div className="login-icon-wrapper">
-            <Bus size={32} />
+          <div className="login-icon-wrapper" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <img src="/logo.png" alt="Sindicato Logo" style={{ width: '90px', height: '90px', objectFit: 'contain', dropShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
           </div>
-          <h1 className="login-title">Sindicato</h1>
+          <h1 className="login-title">Sindicato 15 de Junio</h1>
           <p className="text-muted">Sistema de Gestión Integral</p>
         </div>
 

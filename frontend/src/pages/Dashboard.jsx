@@ -37,8 +37,9 @@ const Dashboard = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <div className="brand">
-            <Bus size={24} /> Sindicato
+          <div className="brand" style={{ gap: '0.75rem', fontSize: '1.1rem' }}>
+            <img src="/logo.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+            <span style={{ lineHeight: '1.2' }}>Sindicato<br/><small style={{fontSize:'0.65rem', opacity:0.8}}>15 de Junio</small></span>
           </div>
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(false)}>
             <X size={24} />
