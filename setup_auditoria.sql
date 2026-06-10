@@ -14,7 +14,7 @@ BEGIN
     
     -- Si existe un usuario logueado, buscar su id_perfil correspondiente
     IF current_user_uuid IS NOT NULL THEN
-        SELECT id_perfil INTO perfil_id FROM public.perfiles WHERE id_auth = current_user_uuid LIMIT 1;
+        SELECT id_perfil INTO perfil_id FROM public.perfiles WHERE auth_user_id = current_user_uuid LIMIT 1;
     END IF;
 
     -- Extraer el ID principal afectado de forma dinámica según la tabla
