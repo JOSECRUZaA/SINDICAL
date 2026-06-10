@@ -243,9 +243,9 @@ const MiPortal = () => {
             </div>
           </div>
           
-          <div style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', ...(deudas.length === 0 ? { background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.15) 100%)' } : { padding: '2rem' }) }}>
             {deudas.length === 0 ? (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.15) 100%)', borderRadius: '16px', padding: '2rem', border: '1px dashed rgba(16, 185, 129, 0.3)' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 2rem' }}>
                 <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)' }}>
                   <Shield size={32} />
                 </div>
