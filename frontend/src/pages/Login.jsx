@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Mail, Bus, User, CreditCard } from 'lucide-react';
+import { Lock, Mail, Bus, User } from 'lucide-react';
 import './Login.css';
 
 const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [nombres, setNombres] = useState('');
-  const [ci, setCi] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -21,11 +18,7 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      if (isLogin) {
-        await login(email, password);
-      } else {
-        await register(email, password, nombres, ci);
-      }
+      await login(email, password);
       navigate('/');
     } catch (err) {
       setError(err.message || 'Ocurrió un error. Por favor intente de nuevo.');
@@ -36,33 +29,37 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container animate-fade-in">
-      <div className="login-card">
-        
-        <div className="login-header">
-          <div className="login-icon-wrapper" style={{ background: 'transparent', boxShadow: 'none' }}>
-            <img src="/logo.png" alt="Sindicato Logo" style={{ width: '90px', height: '90px', objectFit: 'contain', dropShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+    <div className="login-page-wrapper animate-fade-in">
+      <div className="login-info-section">
+        <img src="/logo.png" alt="Sindicato Logo" className="info-logo" />
+        <h1>Sindicato 15 de Junio</h1>
+        <p>
+          Bienvenidos al Sistema de Gestión Integral. Trabajamos día a día por el bienestar,
+          desarrollo y la defensa de los derechos de todos nuestros afiliados, brindando servicios transparentes y de calidad.
+        </p>
+        <div className="info-features">
+          <div className="feature-item">
+            <div className="feature-icon"><Bus size={20} /></div>
+            <span>Gestión eficiente de flotas y rutas</span>
           </div>
-          <h1 className="login-title">Sindicato 15 de Junio</h1>
-          <p className="text-muted">Sistema de Gestión Integral</p>
+          <div className="feature-item">
+            <div className="feature-icon"><User size={20} /></div>
+            <span>Atención y control de afiliados en tiempo real</span>
+          </div>
+          <div className="feature-item">
+            <div className="feature-icon"><Lock size={20} /></div>
+            <span>Plataforma tecnológica segura y confiable</span>
+          </div>
         </div>
+      </div>
 
-        <div className="login-tabs">
-          <button 
-            type="button"
-            className={`login-tab ${isLogin ? 'active' : ''}`}
-            onClick={() => { setIsLogin(true); setError(''); }}
-          >
-            Iniciar Sesión
-          </button>
-          <button 
-            type="button"
-            className={`login-tab ${!isLogin ? 'active' : ''}`}
-            onClick={() => { setIsLogin(false); setError(''); }}
-          >
-            Crear Cuenta
-          </button>
-        </div>
+      <div className="login-form-section">
+        <div className="login-card">
+          
+          <div className="login-header">
+            <h2 className="login-title">Acceso al Sistema</h2>
+            <p className="text-muted">Ingrese sus credenciales para continuar</p>
+          </div>
 
         {error && (
           <div className="alert-error">
@@ -73,42 +70,6 @@ const Login = () => {
 
         <form onSubmit={handleSubmit}>
           
-          {!isLogin && (
-            <div className="animate-fade-in">
-              <div className="form-group">
-                <label className="form-label" htmlFor="nombres">Nombre Completo</label>
-                <div className="input-wrapper">
-                  <div className="input-icon"><User size={18} /></div>
-                  <input
-                    id="nombres"
-                    type="text"
-                    required={!isLogin}
-                    value={nombres}
-                    onChange={(e) => setNombres(e.target.value)}
-                    className="form-input"
-                    placeholder="Ej. Juan Pérez"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="ci">Cédula de Identidad</label>
-                <div className="input-wrapper">
-                  <div className="input-icon"><CreditCard size={18} /></div>
-                  <input
-                    id="ci"
-                    type="text"
-                    required={!isLogin}
-                    value={ci}
-                    onChange={(e) => setCi(e.target.value)}
-                    className="form-input"
-                    placeholder="Ej. 1234567"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="form-group">
             <label className="form-label" htmlFor="email">Correo Electrónico</label>
             <div className="input-wrapper">
@@ -147,9 +108,10 @@ const Login = () => {
             className="btn btn-primary submit-btn"
             disabled={isLoading}
           >
-            {isLoading ? <div className="spinner" style={{margin: '0 auto'}}></div> : (isLogin ? 'Ingresar al Sistema' : 'Registrar Usuario')}
+            {isLoading ? <div className="spinner" style={{margin: '0 auto'}}></div> : 'Ingresar al Sistema'}
           </button>
         </form>
+        </div>
       </div>
     </div>
   );

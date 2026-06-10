@@ -163,7 +163,7 @@ const Afiliados = () => {
     const { data: dData } = await supabase.from('directiva')
       .select('*, cargos_directiva(nombre_cargo)')
       .eq('id_afiliado', afiliado.id_afiliado)
-      .order('fecha_inicio', { ascending: false });
+      .order('gestion_inicio', { ascending: false });
     setDirectiva360(dData || []);
     
     setLoading360(false);
@@ -415,7 +415,7 @@ const Afiliados = () => {
                   {loading360 ? <div className="spinner"></div> : directiva360.length === 0 ? <p className="text-muted">Sin historial en directiva.</p> : (
                     <ul style={{listStyle: 'none'}}>
                       {directiva360.map(d => (
-                        <li key={d.id_historial} style={{padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)'}}>
+                        <li key={d.id_directiva} style={{padding: '0.5rem 0', borderBottom: '1px solid var(--border-color)'}}>
                           {d.cargos_directiva?.nombre_cargo} 
                           <span className={`badge ${d.estado === 1 ? 'badge-success' : 'badge-neutral'}`} style={{marginLeft: '0.5rem', fontSize: '0.65rem'}}>
                             {d.estado === 1 ? 'En Funciones' : 'Finalizado'}

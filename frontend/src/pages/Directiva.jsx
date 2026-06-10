@@ -77,7 +77,7 @@ const Directiva = () => {
               </thead>
               <tbody>
                 {directiva.map(d => (
-                  <tr key={d.id_directivo}>
+                  <tr key={d.id_directiva}>
                     <td className="font-medium text-white"><Award size={16} style={{display:'inline', marginRight:'0.5rem', color:'var(--primary-color)'}}/> {d.cargos_directiva?.nombre_cargo}</td>
                     <td>{d.afiliados?.perfiles?.nombres} ({d.afiliados?.numero_afiliado})</td>
                     <td>{new Date(d.gestion_inicio).toLocaleDateString()}</td>
