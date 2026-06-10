@@ -180,6 +180,7 @@
         id_perfil INT REFERENCES perfiles(id_perfil),
         tabla_afectada VARCHAR(50) NOT NULL,
         accion VARCHAR(10) CHECK (accion IN ('INSERT', 'UPDATE', 'DELETE')),
+        id_registro_afectado VARCHAR(255),
         dato_anterior JSONB,
         dato_nuevo JSONB,
         fecha_accion TIMESTAMPTZ DEFAULT now(),
