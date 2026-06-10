@@ -1,7 +1,4 @@
--- 1. Añadir columna id_registro_afectado a la tabla auditoria
-ALTER TABLE auditoria ADD COLUMN IF NOT EXISTS id_registro_afectado VARCHAR(255);
-
--- 2. Crear la función central de auditoría (Trigger)
+-- Corrección definitiva del Trigger de Auditoría
 CREATE OR REPLACE FUNCTION log_audit_action()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -9,10 +6,10 @@ DECLARE
     perfil_id INT;
     registro_id VARCHAR(255);
 BEGIN
-    -- Intentar obtener el UUID de Auth de Supabase (solo disponible vía API JWT)
+    -- Intentar obtener el UUID de Auth de Supabase
     current_user_uuid := auth.uid();
     
-    -- Si existe un usuario logueado, buscar su id_perfil correspondiente
+    -- Buscamos el id_perfil usando auth_user_id (NO id_auth)
     IF current_user_uuid IS NOT NULL THEN
         SELECT id_perfil INTO perfil_id FROM public.perfiles WHERE auth_user_id = current_user_uuid LIMIT 1;
     END IF;
@@ -47,16 +44,3 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- 3. Vincular los triggers a las tablas clave (eliminamos si existen para poder recrearlos)
-DROP TRIGGER IF EXISTS audit_afiliados_trigger ON afiliados;
-CREATE TRIGGER audit_afiliados_trigger AFTER INSERT OR UPDATE OR DELETE ON afiliados FOR EACH ROW EXECUTE FUNCTION log_audit_action();
-
-DROP TRIGGER IF EXISTS audit_vehiculos_trigger ON vehiculos;
-CREATE TRIGGER audit_vehiculos_trigger AFTER INSERT OR UPDATE OR DELETE ON vehiculos FOR EACH ROW EXECUTE FUNCTION log_audit_action();
-
-DROP TRIGGER IF EXISTS audit_obligaciones_trigger ON obligaciones_financieras;
-CREATE TRIGGER audit_obligaciones_trigger AFTER INSERT OR UPDATE OR DELETE ON obligaciones_financieras FOR EACH ROW EXECUTE FUNCTION log_audit_action();
-
-DROP TRIGGER IF EXISTS audit_directiva_trigger ON directiva;
-CREATE TRIGGER audit_directiva_trigger AFTER INSERT OR UPDATE OR DELETE ON directiva FOR EACH ROW EXECUTE FUNCTION log_audit_action();
