@@ -143,12 +143,15 @@ const Infracciones = () => {
         
         {/* PANEL: FORMULARIO RÁPIDO */}
         {activeTab === 'emitir' && (
-          <div className="glass-panel" style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
+          <div className="glass-panel" style={{ padding: '2rem', maxWidth: '850px', margin: '0 auto' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444', marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
               <AlertTriangle size={20} /> Formulario de Infracción
             </h3>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignItems: 'start' }}>
+            
+            {/* --- COLUMNA IZQUIERDA: BÚSQUEDA --- */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
             {/* Buscador de Placa/Disco */}
             <div className="form-group">
@@ -189,6 +192,10 @@ const Infracciones = () => {
                 </p>
               )}
             </div>
+            </div>
+
+            {/* --- COLUMNA DERECHA: MULTA --- */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%' }}>
 
             {/* Selector de Multa */}
             <div className="form-group" style={{ opacity: selectedVehiculo ? 1 : 0.5, pointerEvents: selectedVehiculo ? 'auto' : 'none' }}>
@@ -218,7 +225,7 @@ const Infracciones = () => {
               <input type="text" placeholder="Ej. Retraso de 5 mins en cruce" value={formData.observaciones} onChange={e => setFormData({...formData, observaciones: e.target.value})} />
             </div>
 
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
               <button 
                 type="submit" 
                 className="btn btn-primary full-width" 
@@ -227,6 +234,7 @@ const Infracciones = () => {
               >
                 PROCESAR MULTA
               </button>
+            </div>
             </div>
           </form>
         </div>
