@@ -13,7 +13,17 @@ const Directiva = () => {
     id_afiliado: '', id_cargo: '', gestion_inicio: '', gestion_fin: ''
   });
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+    
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
