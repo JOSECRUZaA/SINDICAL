@@ -109,7 +109,8 @@ const MiPortal = () => {
         position: 'relative',
         overflow: 'hidden',
         flexWrap: 'wrap',
-        gap: '1.5rem'
+        gap: '1.5rem',
+        minHeight: '160px'
       }}>
         {/* Decoración de fondo */}
         <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }}></div>
