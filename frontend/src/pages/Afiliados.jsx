@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Search, X, Edit, UserPlus, RefreshCw, Trash2, Eye, User, Lock, Mail, CreditCard } from 'lucide-react';
+import { Edit2, Eye, Plus, Search, Trash2, X, Upload, UserPlus, RefreshCw, User, Lock, Mail, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 import { createClient } from '@supabase/supabase-js';
 import './Afiliados.css';
 
@@ -49,7 +50,8 @@ const Afiliados = () => {
       // Obtener categorías
       const { data: catData, error: catError } = await supabase.from('categorias_licencia').select('*');
       if (catError) {
-        alert('Error cargando categorías: ' + catError.message);
+        showError('Error cargando categorías: ' + catError.message);
+        return;
       }
       if (catData) {
         setCategorias(catData);
@@ -81,20 +83,22 @@ const Afiliados = () => {
   };
 
   const handleDelete = async (id_afiliado) => {
-    if (window.confirm('¿Está seguro que desea eliminar este registro? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Eliminar Afiliado?', 'Esta acción no se puede deshacer y eliminará permanentemente al afiliado.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('afiliados').delete().eq('id_afiliado', id_afiliado);
         if (error) {
           if (error.code === '23503') { // Foreign key constraint
-            alert('No se puede eliminar este afiliado porque tiene otros datos asociados (vehículos, deudas, asambleas, etc.). Primero debe eliminar esos registros.');
+            showError('No se puede eliminar este afiliado porque tiene otros datos asociados (vehículos, deudas, asambleas, etc.). Primero debe eliminar esos registros.');
           } else {
-            alert('Error al eliminar: ' + error.message);
+            showError('Error al eliminar: ' + error.message);
           }
           throw error;
         }
         fetchData();
+        showSuccessToast('Afiliado eliminado');
       } catch (error) {
-        console.error('Error al eliminar:', error);
+        console.error('Error al eliminar afiliado:', error);
       }
     }
   };

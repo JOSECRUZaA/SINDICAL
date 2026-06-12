@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Plus, X, Award, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 
 const Directiva = () => {
   const { profile } = useAuth();
@@ -59,17 +60,22 @@ const Directiva = () => {
       setShowModal(false);
       setFormData({ id_afiliado: '', id_cargo: '', gestion_inicio: '', gestion_fin: '' });
       fetchData();
-    } else alert('Error: ' + error.message);
+      showSuccessToast('Directivo registrado');
+    } else {
+      showError('Error: ' + error.message);
+    }
   };
 
   const handleDelete = async (id_directiva) => {
-    if (window.confirm('¿Está seguro que desea eliminar este registro de la directiva? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Eliminar Directivo?', 'Esta acción no se puede deshacer.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('directiva').delete().eq('id_directiva', id_directiva);
         if (error) throw error;
         fetchData();
+        showSuccessToast('Registro eliminado');
       } catch (error) {
-        alert('Error al eliminar registro: ' + error.message);
+        showError('Error al eliminar registro: ' + error.message);
       }
     }
   };

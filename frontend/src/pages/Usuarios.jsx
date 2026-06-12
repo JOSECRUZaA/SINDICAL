@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { UserCog, Search, ShieldAlert, Check, Plus, Edit, X, User, Mail, Lock, CreditCard, Shield, RefreshCw, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { createClient } from '@supabase/supabase-js';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 
 const Usuarios = () => {
   const { profile } = useAuth();
@@ -52,8 +53,10 @@ const Usuarios = () => {
       .eq('id_perfil', id_perfil);
       
     if (error) {
-      alert('Error al cambiar rol: ' + error.message);
+      showError('Error al cambiar rol: ' + error.message);
       fetchUsuarios(); // Revert on error
+    } else {
+      showSuccessToast('Rol actualizado');
     }
   };
 
@@ -68,24 +71,28 @@ const Usuarios = () => {
       .eq('id_perfil', id_perfil);
       
     if (error) {
-      alert('Error al cambiar estado: ' + error.message);
+      showError('Error al cambiar estado: ' + error.message);
       fetchUsuarios();
+    } else {
+      showSuccessToast('Estado actualizado');
     }
   };
 
   const handleDelete = async (id_perfil) => {
-    if (window.confirm('¿Está seguro que desea eliminar este perfil de usuario? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Eliminar Usuario?', 'Esta acción no se puede deshacer.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('perfiles').delete().eq('id_perfil', id_perfil);
         if (error) {
           if (error.code === '23503') {
-            alert('No se puede eliminar este usuario porque tiene datos vinculados (vehículos, multas, asambleas, etc.). Primero reasigne o elimine esos registros.');
+            showError('No se puede eliminar este usuario porque tiene datos vinculados (vehículos, multas, asambleas, etc.). Primero reasigne o elimine esos registros.');
           } else {
-            alert('Error al eliminar: ' + error.message);
+            showError('Error al eliminar: ' + error.message);
           }
           throw error;
         }
         fetchUsuarios();
+        showSuccessToast('Usuario eliminado');
       } catch (error) {
         console.error('Error al eliminar perfil:', error);
       }
@@ -122,10 +129,12 @@ const Usuarios = () => {
         })
         .eq('id_perfil', editingUser.id_perfil);
         
-      if (error) alert('Error al actualizar: ' + error.message);
-      else {
+      if (error) {
+        showError('Error al actualizar: ' + error.message);
+      } else {
         setShowModal(false);
         fetchUsuarios();
+        showSuccessToast('Usuario actualizado');
       }
     } else {
       // Crear nuevo usuario en Auth y Perfiles sin cerrar la sesión actual
@@ -174,15 +183,15 @@ const Usuarios = () => {
             }
           }
           if (!updated) {
-             throw new Error("El sistema está tardando en crear el perfil (Trigger Auth). Revisa la lista en unos momentos.");
+            showError('Timeout esperando el registro de la base de datos.');
+          } else {
+            setShowModal(false);
+            fetchUsuarios();
+            showSuccessToast('Usuario creado exitosamente');
           }
         }
-        
-        setShowModal(false);
-        fetchUsuarios();
-        alert('Usuario creado exitosamente.');
       } catch (err) {
-        alert('Error al crear usuario: ' + err.message);
+        showError('Error al crear usuario: ' + err.message);
       }
     }
   };

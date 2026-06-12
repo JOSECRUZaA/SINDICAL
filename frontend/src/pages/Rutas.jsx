@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Plus, X, Map, MapPin, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -116,17 +117,22 @@ const Rutas = () => {
       setShowModal(false);
       setFormData(defaultFormData);
       fetchData();
-    } else alert('Error: ' + error.message);
+      showSuccessToast('Ruta guardada exitosamente');
+    } else {
+      showError('Error: ' + error.message);
+    }
   };
 
   const handleDelete = async (id_ruta) => {
-    if (window.confirm('¿Está seguro que desea eliminar esta ruta? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Eliminar Ruta?', 'Esta acción no se puede deshacer.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('rutas').delete().eq('id_ruta', id_ruta);
         if (error) throw error;
         fetchData();
+        showSuccessToast('Ruta eliminada');
       } catch (error) {
-        alert('Error al eliminar ruta: ' + error.message);
+        showError('Error al eliminar ruta: ' + error.message);
       }
     }
   };

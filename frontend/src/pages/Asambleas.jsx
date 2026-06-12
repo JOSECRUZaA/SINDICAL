@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Plus, X, Users, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 
 const Asambleas = () => {
   const { profile } = useAuth();
@@ -48,22 +49,27 @@ const Asambleas = () => {
       setShowModal(false);
       setFormData({ tipo: 'Ordinaria', fecha_hora: '', lugar: '', orden_dia: '' });
       fetchData();
-    } else alert('Error: ' + error.message);
+      showSuccessToast('Asamblea guardada');
+    } else {
+      showError('Error: ' + error.message);
+    }
   };
 
   const handleDelete = async (id_asamblea) => {
-    if (window.confirm('¿Está seguro que desea eliminar esta asamblea? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Eliminar Asamblea?', 'Esta acción no se puede deshacer.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('asambleas').delete().eq('id_asamblea', id_asamblea);
         if (error) {
           if (error.code === '23503') {
-            alert('No se puede eliminar esta asamblea porque tiene registros de asistencia asociados. Primero debe borrar la asistencia.');
+            showError('No se puede eliminar esta asamblea porque tiene registros de asistencia asociados. Primero debe borrar la asistencia.');
           } else {
-            alert('Error al eliminar: ' + error.message);
+            showError('Error al eliminar: ' + error.message);
           }
           throw error;
         }
         fetchData();
+        showSuccessToast('Asamblea eliminada');
       } catch (error) {
         console.error('Error al eliminar asamblea:', error);
       }
@@ -119,10 +125,12 @@ const Asambleas = () => {
     });
 
     if (multas.length > 0) {
-      await supabase.from('obligaciones_financieras').insert(multas);
-      alert(`Asistencia guardada. Se generaron ${multas.length} multas por inasistencia.`);
+      const { error: errMultas } = await supabase.from('obligaciones_financieras').insert(multas);
+      if (!errMultas) {
+        showAlert(`Asistencia guardada. Se generaron ${multas.length} multas por inasistencia.`, "Asistencia Procesada", "success");
+      }
     } else {
-      alert('Asistencia guardada correctamente.');
+      showSuccessToast('Asistencia guardada correctamente.');
     }
 
     // Actualizar estado de asamblea

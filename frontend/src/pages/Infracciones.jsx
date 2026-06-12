@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { AlertTriangle, Search, Check, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 
 const Infracciones = () => {
   const { profile } = useAuth();
@@ -77,7 +78,7 @@ const Infracciones = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedVehiculo) {
-      alert('Debe seleccionar un vehículo válido primero.');
+      showAlert('Debe seleccionar un vehículo válido primero.', 'Atención', 'warning');
       return;
     }
     
@@ -94,24 +95,26 @@ const Infracciones = () => {
     const { error } = await supabase.from('obligaciones_financieras').insert([payload]);
     
     if (!error) {
-      // Limpiar formulario y recargar tabla
       setSearchTerm('');
       setSelectedVehiculo(null);
       setFormData({ id_tipo_multa: '', monto_total: '', observaciones: '' });
       fetchData();
+      showSuccessToast('Multa procesada');
     } else {
-      alert('Error: ' + error.message);
+      showError('Error: ' + error.message);
     }
   };
 
   const handleDelete = async (id_obligacion) => {
-    if (window.confirm('¿Está seguro que desea anular esta infracción? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Anular Infracción?', 'Esta acción no se puede deshacer.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('obligaciones_financieras').delete().eq('id_obligacion', id_obligacion);
         if (error) throw error;
         fetchData();
+        showSuccessToast('Infracción anulada');
       } catch (error) {
-        alert('Error al eliminar infracción: ' + error.message);
+        showError('Error al eliminar infracción: ' + error.message);
       }
     }
   };

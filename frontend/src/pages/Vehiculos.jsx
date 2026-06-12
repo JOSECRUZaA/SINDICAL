@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Search, X, Edit, Bus, UserPlus, Trash2 } from 'lucide-react';
+import { Plus, Search, X, UserPlus, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 
 const Vehiculos = () => {
   const { profile } = useAuth();
@@ -88,31 +89,36 @@ const Vehiculos = () => {
           id_propietario: formData.id_propietario || null
         }]);
 
-      if (error) throw error;
-      
-      setShowModal(false);
-      setFormData({
-        numero_disco: '', placa: '', numero_linea: '', marca: '', modelo: '', color: '', estado: 'Operativo', id_propietario: ''
-      });
-      fetchData();
+      if (error) {
+        showError('Error al guardar vehículo: ' + error.message);
+      } else {
+        setShowModal(false);
+        setFormData({
+          numero_disco: '', placa: '', numero_linea: '', marca: '', modelo: '', color: '', estado: 'Operativo', id_propietario: ''
+        });
+        fetchData();
+        showSuccessToast('Vehículo guardado');
+      }
     } catch (error) {
-      alert('Error al guardar vehículo: ' + error.message);
+      showError('Error al procesar la solicitud: ' + error.message);
     }
   };
 
   const handleDelete = async (id_vehiculo) => {
-    if (window.confirm('¿Está seguro que desea eliminar este vehículo? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Eliminar Vehículo?', 'Esta acción no se puede deshacer.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('vehiculos').delete().eq('id_vehiculo', id_vehiculo);
         if (error) {
           if (error.code === '23503') {
-            alert('No se puede eliminar este vehículo porque tiene choferes asignados u otros datos vinculados. Primero debe desvincularlos.');
+            showError('No se puede eliminar este vehículo porque tiene choferes asignados u otros datos vinculados. Primero debe desvincularlos.');
           } else {
-            alert('Error al eliminar: ' + error.message);
+            showError('Error al eliminar: ' + error.message);
           }
-          throw error;
+        } else {
+          fetchData();
+          showSuccessToast('Vehículo eliminado');
         }
-        fetchData();
       } catch (error) {
         console.error('Error al eliminar vehículo:', error);
       }
@@ -122,10 +128,13 @@ const Vehiculos = () => {
   const handleAssignChofer = async (e) => {
     e.preventDefault();
     try {
+      let error = null;
       if (isExterno) {
-        if (!choferFormData.nombres_ext || !choferFormData.ci_ext) return alert("Nombre y CI son requeridos");
+        if (!choferFormData.nombres_ext || !choferFormData.ci_ext) {
+          showAlert("Datos incompletos", "Nombre y CI son requeridos", "warning");
+          return;
+        }
         
-        // 1. Insertar chofer externo
         const { data: extData, error: extError } = await supabase.from('choferes_externos').insert([{
           nombres: choferFormData.nombres_ext,
           paterno: choferFormData.paterno_ext,
@@ -137,7 +146,6 @@ const Vehiculos = () => {
         
         if (extError) throw extError;
 
-        // 2. Asignar al vehículo
         const { error: asignError } = await supabase.from('chofer_vehiculo').insert([{
           id_vehiculo: choferModal.vehiculo.id_vehiculo,
           id_chofer: null,
@@ -145,27 +153,30 @@ const Vehiculos = () => {
           fecha_asignacion: new Date().toISOString().split('T')[0],
           estado: 1
         }]);
-        if (asignError) throw asignError;
-
+        error = asignError;
       } else {
         if (!choferFormData.id_chofer) return;
-        const { error } = await supabase.from('chofer_vehiculo').insert([{
+        const { error: asignError } = await supabase.from('chofer_vehiculo').insert([{
           id_vehiculo: choferModal.vehiculo.id_vehiculo,
           id_chofer: parseInt(choferFormData.id_chofer),
           id_chofer_externo: null,
           fecha_asignacion: new Date().toISOString().split('T')[0],
           estado: 1
         }]);
-        if (error) throw error;
+        error = asignError;
       }
       
-      alert('Chofer asignado exitosamente.');
-      setChoferModal({ show: false, vehiculo: null });
-      setChoferFormData({ id_chofer: '', nombres_ext: '', paterno_ext: '', materno_ext: '', ci_ext: '', licencia_ext: '', telefono_ext: '' });
-      setIsExterno(false);
-      fetchData(); 
+      if (!error) {
+        setChoferModal({ show: false, vehiculo: null });
+        setChoferFormData({ id_chofer: '', nombres_ext: '', paterno_ext: '', materno_ext: '', ci_ext: '', licencia_ext: '', telefono_ext: '' });
+        setIsExterno(false);
+        fetchData();
+        showSuccessToast('Chofer asignado exitosamente');
+      } else {
+        showError('Error al asignar chofer: ' + error.message);
+      }
     } catch (error) {
-      alert('Error al asignar chofer: ' + error.message);
+      showError('Error al asignar chofer: ' + error.message);
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Plus, X, DollarSign, CheckCircle, Settings, Edit2, Save, Search, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 
 const Hacienda = () => {
   const { profile } = useAuth();
@@ -76,12 +77,12 @@ const Hacienda = () => {
         .eq('estado_organico', 'Activo');
         
       if (errActivos) {
-        alert('Error obteniendo afiliados activos: ' + errActivos.message);
+        showError('Error obteniendo afiliados activos: ' + errActivos.message);
         return;
       }
       
       if (!activos || activos.length === 0) {
-        alert('No hay afiliados activos para generar esta deuda.');
+        showAlert('No hay afiliados activos para generar esta deuda.', 'Sin afiliados', 'warning');
         return;
       }
 
@@ -100,12 +101,12 @@ const Hacienda = () => {
       const { error } = await supabase.from('obligaciones_financieras').insert(payloads);
       
       if (!error) {
-        alert(`¡Éxito! Se generaron ${payloads.length} deudas correctamente.`);
+        showAlert(`Se generaron ${payloads.length} deudas correctamente.`, '¡Éxito!', 'success');
         setShowModal(false);
         setFormData({ id_afiliado: '', tipo_obligacion: 'Cuota', id_tipo_cuota: '', concepto: '', monto_total: '', fecha_limite: '' });
         fetchData();
       } else {
-        alert('Error en carga masiva: ' + error.message);
+        showError('Error en carga masiva: ' + error.message);
       }
 
     } else {
@@ -121,7 +122,10 @@ const Hacienda = () => {
         setShowModal(false);
         setFormData({ id_afiliado: '', tipo_obligacion: 'Cuota', id_tipo_cuota: '', concepto: '', monto_total: '', fecha_limite: '' });
         fetchData();
-      } else alert('Error: ' + error.message);
+        showSuccessToast('Deuda registrada exitosamente');
+      } else {
+        showError('Error: ' + error.message);
+      }
     }
   };
 
@@ -145,13 +149,15 @@ const Hacienda = () => {
   };
 
   const handleDelete = async (id_obligacion) => {
-    if (window.confirm('¿Está seguro que desea anular esta deuda/cuota? Esta acción no se puede deshacer.')) {
+    const isConfirmed = await showConfirmDelete('¿Anular Obligación?', 'Esta acción no se puede deshacer.');
+    if (isConfirmed) {
       try {
         const { error } = await supabase.from('obligaciones_financieras').delete().eq('id_obligacion', id_obligacion);
         if (error) throw error;
         fetchData();
+        showSuccessToast('Obligación anulada');
       } catch (error) {
-        alert('Error al anular obligación: ' + error.message);
+        showError('Error al anular obligación: ' + error.message);
       }
     }
   };
@@ -162,10 +168,12 @@ const Hacienda = () => {
       .update({ monto_default: newMonto })
       .eq(idField, idValue);
       
-    if (error) alert('Error al actualizar monto: ' + error.message);
-    else {
+    if (error) {
+      showError('Error al actualizar monto: ' + error.message);
+    } else {
       setEditingConfig(null);
       fetchData();
+      showSuccessToast('Configuración guardada');
     }
   };
 
