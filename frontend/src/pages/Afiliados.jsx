@@ -115,14 +115,26 @@ const Afiliados = () => {
           });
 
           if (authError) throw authError;
-          await new Promise(resolve => setTimeout(resolve, 800)); // Esperar al trigger
 
-          const { data: perfData, error: profileError } = await supabase.from('perfiles')
-            .update({ paterno: formData.paterno, materno: formData.materno, ci: formData.ci, nombres: formData.nombres })
-            .eq('auth_user_id', authData.user.id)
-            .select('id_perfil').single();
+          // Reintentos para esperar que el trigger de Supabase cree el perfil
+          let perfData = null;
+          for (let i = 0; i < 5; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo por intento
             
-          if (profileError) throw profileError;
+            const { data, error } = await supabase.from('perfiles')
+              .update({ paterno: formData.paterno, materno: formData.materno, ci: formData.ci, nombres: formData.nombres })
+              .eq('auth_user_id', authData.user.id)
+              .select('id_perfil');
+              
+            if (data && data.length > 0) {
+              perfData = data[0];
+              break;
+            }
+          }
+          
+          if (!perfData) {
+            throw new Error("El sistema está tardando en crear el perfil en la base de datos (Trigger Auth). Inténtalo de nuevo o revisa si se creó en la lista.");
+          }
           final_id_perfil = perfData.id_perfil;
         } else {
           // Crear perfil manual sin cuenta auth
