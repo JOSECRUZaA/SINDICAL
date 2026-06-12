@@ -68,19 +68,6 @@ const Dashboard = () => {
         </div>
         
         <div className="sidebar-footer">
-          <div className="user-card">
-            <div className="user-card-avatar">
-              {profile?.nombres?.charAt(0).toUpperCase() || 'U'}
-            </div>
-            <div className="user-card-info">
-              <span className="user-card-name" title={profile?.nombres || user?.email}>
-                {profile?.nombres || user?.email}
-              </span>
-              <span className="user-card-role">
-                {profile?.rol || 'Rol no asignado'}
-              </span>
-            </div>
-          </div>
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={20} />
             <span>Cerrar Sesión</span>
@@ -106,8 +93,8 @@ const Dashboard = () => {
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>¡Hola!</span>
               <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{profile?.nombres || 'Usuario'}</span>
             </div>
-            <div className="avatar" title={profile?.nombres}>
-              {profile?.nombres?.charAt(0).toUpperCase() || 'U'}
+            <div className="avatar" title={profile?.nombres} style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <User size={20} />
             </div>
           </div>
         </header>
