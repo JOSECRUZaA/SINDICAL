@@ -121,103 +121,178 @@ const Infracciones = () => {
 
   return (
     <div className="page-container animate-fade-in flex-col h-full">
-      <div className="page-header" style={{ marginBottom: '1rem' }}>
+      <div className="page-header" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 className="page-title">Control de Infracciones</h2>
-          <p className="text-muted">Levanta infracciones en ruta y revisa el historial.</p>
+          <h2 className="page-title" style={{ margin: 0 }}>Control de Infracciones</h2>
+          <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem' }}>Levanta infracciones en ruta y revisa el historial.</p>
         </div>
-      </div>
 
-      {/* TABS */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-        <button 
-          onClick={() => setActiveTab('emitir')}
-          style={{ 
-            background: 'none', border: 'none', padding: '0.75rem 1.5rem', 
-            color: activeTab === 'emitir' ? 'var(--primary-color)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'emitir' ? '2px solid var(--primary-color)' : '2px solid transparent',
-            fontWeight: activeTab === 'emitir' ? 'bold' : 'normal',
-            cursor: 'pointer', fontSize: '1rem'
-          }}
-        >
-          Emitir Multa
-        </button>
-        <button 
-          onClick={() => setActiveTab('historial')}
-          style={{ 
-            background: 'none', border: 'none', padding: '0.75rem 1.5rem', 
-            color: activeTab === 'historial' ? 'var(--primary-color)' : 'var(--text-muted)',
-            borderBottom: activeTab === 'historial' ? '2px solid var(--primary-color)' : '2px solid transparent',
-            fontWeight: activeTab === 'historial' ? 'bold' : 'normal',
-            cursor: 'pointer', fontSize: '1rem'
-          }}
-        >
-          Historial de Multas
-        </button>
+        {/* TABS MODERNOS */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '0.25rem', 
+          background: 'var(--surface-color)', 
+          padding: '0.35rem', 
+          borderRadius: '0.75rem',
+          border: '1px solid var(--border-color)',
+          width: 'fit-content'
+        }}>
+          <button 
+            onClick={() => setActiveTab('emitir')}
+            style={{ 
+              background: activeTab === 'emitir' ? 'var(--primary-color)' : 'transparent',
+              border: 'none', 
+              padding: '0.5rem 1rem', 
+              color: activeTab === 'emitir' ? 'white' : 'var(--text-muted)',
+              borderRadius: '0.5rem',
+              fontWeight: '600',
+              cursor: 'pointer', 
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <AlertTriangle size={16} />
+            Emitir Multa
+          </button>
+          <button 
+            onClick={() => setActiveTab('historial')}
+            style={{ 
+              background: activeTab === 'historial' ? 'var(--primary-color)' : 'transparent',
+              border: 'none', 
+              padding: '0.5rem 1rem', 
+              color: activeTab === 'historial' ? 'white' : 'var(--text-muted)',
+              borderRadius: '0.5rem',
+              fontWeight: '600',
+              cursor: 'pointer', 
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <Search size={16} />
+            Historial
+          </button>
+        </div>
       </div>
 
       <div style={{ flex: 1, minHeight: 0 }}>
         
         {/* PANEL: FORMULARIO RÁPIDO */}
         {activeTab === 'emitir' && (
-          <div className="glass-panel" style={{ padding: '2rem', maxWidth: '850px', margin: '0 auto' }}>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444', marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
-              <AlertTriangle size={20} /> Formulario de Infracción
-            </h3>
+          <div className="glass-panel" style={{ 
+            padding: '1.25rem', 
+            maxWidth: '1000px', 
+            margin: '0 auto',
+            borderTop: '4px solid #ef4444',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+          }}>
 
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignItems: 'start' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.25rem', alignItems: 'stretch' }}>
             
             {/* --- COLUMNA IZQUIERDA: BÚSQUEDA --- */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--bg-color)', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)' }}>
             
             {/* Buscador de Placa/Disco */}
-            <div className="form-group">
-              <label className="form-label" style={{ fontWeight: 'bold' }}>1. Placa o Nº Disco</label>
-              <div className="search-box" style={{ width: '100%' }}>
-                <Search size={18} className="search-icon" />
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label" style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                <span style={{ background: 'var(--primary-color)', color: 'white', width: '20px', height: '20px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.7rem' }}>1</span>
+                Placa o Nº de Disco
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                 <input 
                   type="text" 
                   placeholder="Ej. ABC1234 o 115" 
                   value={searchTerm} 
                   onChange={handleSearch}
                   autoComplete="off"
-                  style={{ textTransform: 'uppercase', fontSize: '1.1rem', fontWeight: 'bold' }}
+                  style={{ 
+                    width: '100%',
+                    padding: '0.6rem 0.6rem 0.6rem 2.25rem',
+                    textTransform: 'uppercase', 
+                    fontSize: '1rem', 
+                    fontWeight: '600',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '0.5rem',
+                    background: 'var(--surface-color)',
+                    color: 'var(--text-main)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = 'var(--primary-color)'}
+                  onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                 />
               </div>
             </div>
 
             {/* Tarjeta del Infractor (Aparece al encontrar) */}
             <div style={{ 
-              minHeight: '80px', 
-              background: selectedVehiculo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.02)', 
-              border: `1px solid ${selectedVehiculo ? '#10b981' : 'var(--border-color)'}`,
-              borderRadius: 'var(--radius-md)', 
+              flex: 1,
+              background: selectedVehiculo ? 'linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02))' : 'var(--surface-color)', 
+              border: `1px ${selectedVehiculo ? 'solid' : 'dashed'} ${selectedVehiculo ? '#10b981' : 'var(--border-color)'}`,
+              borderRadius: '0.5rem', 
               padding: '1rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center'
+              display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+              transition: 'all 0.3s ease'
             }}>
               {selectedVehiculo ? (
                 <div style={{ width: '100%', textAlign: 'left' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', marginBottom: '0.25rem' }}>
-                    <Check size={16} /> <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>VEHÍCULO ENCONTRADO</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', marginBottom: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', padding: '0.3rem 0.75rem', borderRadius: '1rem', width: 'fit-content' }}>
+                    <Check size={14} strokeWidth={3} /> <span style={{ fontWeight: 'bold', fontSize: '0.75rem' }}>VEHÍCULO IDENTIFICADO</span>
                   </div>
-                  <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{selectedVehiculo.afiliados?.perfiles?.nombres || 'Afiliado ' + selectedVehiculo.afiliados?.numero_afiliado}</p>
-                  <p className="text-muted text-sm">Línea {selectedVehiculo.numero_linea} - Disco {selectedVehiculo.numero_disco}</p>
+                  <h4 style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--text-main)', margin: '0 0 0.5rem 0' }}>
+                    {selectedVehiculo.afiliados?.perfiles?.nombres || 'Afiliado ' + selectedVehiculo.afiliados?.numero_afiliado}
+                  </h4>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <div style={{ background: 'var(--bg-color)', padding: '0.35rem 0.75rem', borderRadius: '0.35rem', border: '1px solid var(--border-color)' }}>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 'bold' }}>Línea</span>
+                      <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{selectedVehiculo.numero_linea}</span>
+                    </div>
+                    <div style={{ background: 'var(--bg-color)', padding: '0.35rem 0.75rem', borderRadius: '0.35rem', border: '1px solid var(--border-color)' }}>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 'bold' }}>Disco</span>
+                      <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>Nº {selectedVehiculo.numero_disco}</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <p className="text-muted text-sm">
-                  {searchTerm.length >= 2 ? "No se encontró el vehículo." : "Escriba para buscar un vehículo."}
-                </p>
+                <div style={{ color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                  <Search size={24} opacity={0.3} />
+                  <p style={{ fontSize: '0.85rem', margin: 0 }}>
+                    {searchTerm.length >= 2 ? "No se encontró ningún vehículo." : "Escriba la placa o disco para buscar."}
+                  </p>
+                </div>
               )}
             </div>
             </div>
 
             {/* --- COLUMNA DERECHA: MULTA --- */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%', transition: 'opacity 0.3s ease', opacity: selectedVehiculo ? 1 : 0.4, pointerEvents: selectedVehiculo ? 'auto' : 'none' }}>
 
             {/* Selector de Multa */}
-            <div className="form-group" style={{ opacity: selectedVehiculo ? 1 : 0.5, pointerEvents: selectedVehiculo ? 'auto' : 'none' }}>
-              <label className="form-label" style={{ fontWeight: 'bold' }}>2. Tipo de Infracción</label>
-              <select required value={formData.id_tipo_multa} onChange={handleMultaChange} style={{ fontSize: '1.05rem', padding: '0.75rem' }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label" style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                <span style={{ background: '#ef4444', color: 'white', width: '20px', height: '20px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.7rem' }}>2</span>
+                Tipo de Infracción
+              </label>
+              <select 
+                required 
+                value={formData.id_tipo_multa} 
+                onChange={handleMultaChange} 
+                style={{ 
+                  width: '100%',
+                  fontSize: '0.95rem', 
+                  padding: '0.6rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--surface-color)',
+                  color: 'var(--text-main)',
+                  cursor: 'pointer'
+                }}
+              >
                 <option value="">Seleccione sanción...</option>
                 {tiposMulta.map(t => (
                   <option key={t.id_tipo_multa} value={t.id_tipo_multa}>{t.concepto}</option>
@@ -226,30 +301,75 @@ const Infracciones = () => {
             </div>
 
             {/* Monto Automático */}
-            <div className="form-group" style={{ opacity: selectedVehiculo ? 1 : 0.5, pointerEvents: 'none' }}>
-              <label className="form-label" style={{ fontWeight: 'bold' }}>Monto a Cobrar (Bs)</label>
-              <input 
-                type="text" 
-                readOnly 
-                value={formData.monto_total ? `${formData.monto_total} Bs` : ''} 
-                style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.05)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
-              />
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label" style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--text-main)', marginBottom: '0.25rem' }}>Monto a Cobrar (Bs)</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 'bold', color: '#ef4444', fontSize: '1rem' }}>Bs.</span>
+                <input 
+                  type="text" 
+                  readOnly 
+                  placeholder="0.00"
+                  value={formData.monto_total} 
+                  style={{ 
+                    width: '100%',
+                    padding: '0.5rem 0.5rem 0.5rem 2.25rem',
+                    fontSize: '1.25rem', 
+                    fontWeight: '800', 
+                    color: '#ef4444', 
+                    backgroundColor: 'rgba(239, 68, 68, 0.05)', 
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '0.5rem'
+                  }}
+                />
+              </div>
             </div>
             
             {/* Observaciones extra */}
-            <div className="form-group" style={{ opacity: selectedVehiculo ? 1 : 0.5, pointerEvents: selectedVehiculo ? 'auto' : 'none' }}>
-              <label className="form-label">Observaciones (Opcional)</label>
-              <input type="text" placeholder="Ej. Retraso de 5 mins en cruce" value={formData.observaciones} onChange={e => setFormData({...formData, observaciones: e.target.value})} />
+            <div className="form-group" style={{ margin: 0, flex: 1 }}>
+              <label className="form-label" style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--text-main)', marginBottom: '0.25rem' }}>Observaciones (Opcional)</label>
+              <textarea 
+                placeholder="Ej. Retraso de 5 mins en cruce..." 
+                value={formData.observaciones} 
+                onChange={e => setFormData({...formData, observaciones: e.target.value})} 
+                style={{ 
+                  width: '100%',
+                  padding: '0.5rem 0.75rem',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '0.5rem',
+                  background: 'var(--surface-color)',
+                  color: 'var(--text-main)',
+                  resize: 'none',
+                  height: '60px',
+                  fontFamily: 'inherit',
+                  fontSize: '0.85rem'
+                }}
+              />
             </div>
 
-            <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+            <div style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
               <button 
                 type="submit" 
-                className="btn btn-primary full-width" 
-                style={{ backgroundColor: '#ef4444', borderColor: '#ef4444', padding: '1rem', fontSize: '1.1rem', fontWeight: 'bold' }}
                 disabled={!selectedVehiculo || !formData.id_tipo_multa}
+                style={{ 
+                  width: '100%',
+                  background: (!selectedVehiculo || !formData.id_tipo_multa) ? 'var(--border-color)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: (!selectedVehiculo || !formData.id_tipo_multa) ? 'var(--text-muted)' : 'white',
+                  border: 'none',
+                  padding: '0.75rem', 
+                  fontSize: '1rem', 
+                  fontWeight: 'bold',
+                  borderRadius: '0.5rem',
+                  cursor: (!selectedVehiculo || !formData.id_tipo_multa) ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  boxShadow: (!selectedVehiculo || !formData.id_tipo_multa) ? 'none' : '0 4px 15px rgba(239, 68, 68, 0.4)',
+                  transition: 'all 0.3s ease'
+                }}
               >
-                PROCESAR MULTA
+                <AlertTriangle size={18} />
+                PROCESAR INFRACCIÓN
               </button>
             </div>
             </div>
