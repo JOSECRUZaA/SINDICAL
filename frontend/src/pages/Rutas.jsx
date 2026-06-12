@@ -197,6 +197,7 @@ const Rutas = () => {
                     <td><span className={`badge ${r.estado === 1 ? 'badge-success' : 'badge-danger'}`}>
                       {r.estado === 1 ? 'Activa' : 'Inactiva'}
                     </span></td>
+                    <td>
                       <button 
                         className="btn btn-icon" 
                         title="Ver en Mapa"
