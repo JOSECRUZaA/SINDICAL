@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Edit2, Eye, Plus, Search, Trash2, X, Upload, UserPlus, RefreshCw, User, Lock, Mail, CreditCard } from 'lucide-react';
+import { Edit, Edit2, Eye, Plus, Search, Trash2, X, Upload, UserPlus, RefreshCw, User, Lock, Mail, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { showConfirmDelete, showError, showAlert, showSuccessToast } from '../lib/alerts';
 import { createClient } from '@supabase/supabase-js';
