@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, X, Users } from 'lucide-react';
+import { Plus, X, Users, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Asambleas = () => {
+  const { profile } = useAuth();
   const [asambleas, setAsambleas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -47,6 +49,25 @@ const Asambleas = () => {
       setFormData({ tipo: 'Ordinaria', fecha_hora: '', lugar: '', orden_dia: '' });
       fetchData();
     } else alert('Error: ' + error.message);
+  };
+
+  const handleDelete = async (id_asamblea) => {
+    if (window.confirm('¿Está seguro que desea eliminar esta asamblea? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('asambleas').delete().eq('id_asamblea', id_asamblea);
+        if (error) {
+          if (error.code === '23503') {
+            alert('No se puede eliminar esta asamblea porque tiene registros de asistencia asociados. Primero debe borrar la asistencia.');
+          } else {
+            alert('Error al eliminar: ' + error.message);
+          }
+          throw error;
+        }
+        fetchData();
+      } catch (error) {
+        console.error('Error al eliminar asamblea:', error);
+      }
+    }
   };
 
   const openAsistencia = async (asamblea) => {
@@ -150,6 +171,16 @@ const Asambleas = () => {
                         <Users size={16} style={{marginRight: '0.25rem'}} />
                         {a.estado === 'Realizada' ? 'Ver/Editar Lista' : 'Tomar Lista'}
                       </button>
+                      {profile?.rol === 'Administrador' && (
+                        <button 
+                          className="btn-outline" 
+                          style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)', marginLeft: '0.25rem'}} 
+                          title="Eliminar"
+                          onClick={() => handleDelete(a.id_asamblea)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

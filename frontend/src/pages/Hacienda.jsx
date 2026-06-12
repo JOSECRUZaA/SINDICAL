@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, X, DollarSign, CheckCircle, Settings, Edit2, Save, Search } from 'lucide-react';
+import { Plus, X, DollarSign, CheckCircle, Settings, Edit2, Save, Search, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Hacienda = () => {
+  const { profile } = useAuth();
   const [obligaciones, setObligaciones] = useState([]);
   const [afiliados, setAfiliados] = useState([]);
   const [tiposCuota, setTiposCuota] = useState([]);
@@ -142,6 +144,18 @@ const Hacienda = () => {
     if (!error) fetchData();
   };
 
+  const handleDelete = async (id_obligacion) => {
+    if (window.confirm('¿Está seguro que desea anular esta deuda/cuota? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('obligaciones_financieras').delete().eq('id_obligacion', id_obligacion);
+        if (error) throw error;
+        fetchData();
+      } catch (error) {
+        alert('Error al anular obligación: ' + error.message);
+      }
+    }
+  };
+
   const handleUpdateConfig = async (table, idField, idValue, newMonto) => {
     const { error } = await supabase
       .from(table)
@@ -269,6 +283,16 @@ const Hacienda = () => {
                       {o.estado === 'Pendiente' && (
                         <button className="btn btn-primary" style={{padding: '0.25rem 0.5rem', fontSize: '0.75rem'}} onClick={() => marcarPagado(o.id_obligacion)}>
                           Cobrar
+                        </button>
+                      )}
+                      {profile?.rol === 'Administrador' && (
+                        <button 
+                          className="btn-outline" 
+                          style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)', marginLeft: '0.25rem'}} 
+                          title="Eliminar"
+                          onClick={() => handleDelete(o.id_obligacion)}
+                        >
+                          <Trash2 size={16} />
                         </button>
                       )}
                     </td>

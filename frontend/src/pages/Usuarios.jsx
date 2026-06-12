@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { UserCog, Search, ShieldAlert, Check, Plus, Edit, X, User, Mail, Lock, CreditCard, Shield, RefreshCw } from 'lucide-react';
+import { UserCog, Search, ShieldAlert, Check, Plus, Edit, X, User, Mail, Lock, CreditCard, Shield, RefreshCw, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { createClient } from '@supabase/supabase-js';
 
 const Usuarios = () => {
+  const { profile } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,6 +70,25 @@ const Usuarios = () => {
     if (error) {
       alert('Error al cambiar estado: ' + error.message);
       fetchUsuarios();
+    }
+  };
+
+  const handleDelete = async (id_perfil) => {
+    if (window.confirm('¿Está seguro que desea eliminar este perfil de usuario? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('perfiles').delete().eq('id_perfil', id_perfil);
+        if (error) {
+          if (error.code === '23503') {
+            alert('No se puede eliminar este usuario porque tiene datos vinculados (vehículos, multas, asambleas, etc.). Primero reasigne o elimine esos registros.');
+          } else {
+            alert('Error al eliminar: ' + error.message);
+          }
+          throw error;
+        }
+        fetchUsuarios();
+      } catch (error) {
+        console.error('Error al eliminar perfil:', error);
+      }
     }
   };
 
@@ -259,6 +280,16 @@ const Usuarios = () => {
                       <button className="btn-outline" style={{padding: '0.25rem 0.5rem', border: 'none'}} onClick={() => handleEdit(u)} title="Editar Información">
                         <Edit size={16} />
                       </button>
+                      {profile?.rol === 'Administrador' && (
+                        <button 
+                          className="btn-outline" 
+                          style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)', marginLeft: '0.25rem'}} 
+                          title="Eliminar"
+                          onClick={() => handleDelete(u.id_perfil)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

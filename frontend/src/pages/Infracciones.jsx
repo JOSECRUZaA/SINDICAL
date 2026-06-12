@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { AlertTriangle, Search, Check } from 'lucide-react';
+import { AlertTriangle, Search, Check, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Infracciones = () => {
+  const { profile } = useAuth();
   const [multas, setMultas] = useState([]);
   const [tiposMulta, setTiposMulta] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
@@ -99,6 +101,18 @@ const Infracciones = () => {
       fetchData();
     } else {
       alert('Error: ' + error.message);
+    }
+  };
+
+  const handleDelete = async (id_obligacion) => {
+    if (window.confirm('¿Está seguro que desea anular esta infracción? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('obligaciones_financieras').delete().eq('id_obligacion', id_obligacion);
+        if (error) throw error;
+        fetchData();
+      } catch (error) {
+        alert('Error al eliminar infracción: ' + error.message);
+      }
     }
   };
 
@@ -257,6 +271,7 @@ const Infracciones = () => {
                     <th>Monto</th>
                     <th>Fecha</th>
                     <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -267,6 +282,18 @@ const Infracciones = () => {
                       <td className="font-bold text-danger">{o.monto_total} Bs</td>
                       <td>{new Date(o.fecha_registro || o.fecha_limite).toLocaleDateString()}</td>
                       <td><span className={`badge ${o.estado === 'Pagado' ? 'badge-success' : 'badge-danger'}`}>{o.estado}</span></td>
+                      <td>
+                        {profile?.rol === 'Administrador' && (
+                          <button 
+                            className="btn-outline" 
+                            style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)'}} 
+                            title="Eliminar"
+                            onClick={() => handleDelete(o.id_obligacion)}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                   {multas.length === 0 && (

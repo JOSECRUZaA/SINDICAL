@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, X, Award } from 'lucide-react';
+import { Plus, X, Award, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Directiva = () => {
+  const { profile } = useAuth();
   const [directiva, setDirectiva] = useState([]);
   const [afiliados, setAfiliados] = useState([]);
   const [cargos, setCargos] = useState([]);
@@ -60,6 +62,18 @@ const Directiva = () => {
     } else alert('Error: ' + error.message);
   };
 
+  const handleDelete = async (id_directiva) => {
+    if (window.confirm('¿Está seguro que desea eliminar este registro de la directiva? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('directiva').delete().eq('id_directiva', id_directiva);
+        if (error) throw error;
+        fetchData();
+      } catch (error) {
+        alert('Error al eliminar registro: ' + error.message);
+      }
+    }
+  };
+
   return (
     <div className="page-container animate-fade-in">
       <div className="page-header">
@@ -83,6 +97,7 @@ const Directiva = () => {
                   <th>Gestión Inicio</th>
                   <th>Gestión Fin</th>
                   <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -93,6 +108,18 @@ const Directiva = () => {
                     <td>{new Date(d.gestion_inicio).toLocaleDateString()}</td>
                     <td>{d.gestion_fin ? new Date(d.gestion_fin).toLocaleDateString() : 'Vigente'}</td>
                     <td><span className={`badge ${d.estado === 1 ? 'badge-success' : 'badge-neutral'}`}>{d.estado === 1 ? 'En Funciones' : 'Ex-Directivo'}</span></td>
+                    <td>
+                      {profile?.rol === 'Administrador' && (
+                        <button 
+                          className="btn-outline" 
+                          style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)'}} 
+                          title="Eliminar"
+                          onClick={() => handleDelete(d.id_directiva)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

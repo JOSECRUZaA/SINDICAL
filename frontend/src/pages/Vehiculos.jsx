@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Search, X, Edit, Bus, UserPlus } from 'lucide-react';
+import { Plus, Search, X, Edit, Bus, UserPlus, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Vehiculos = () => {
@@ -97,6 +97,25 @@ const Vehiculos = () => {
       fetchData();
     } catch (error) {
       alert('Error al guardar vehículo: ' + error.message);
+    }
+  };
+
+  const handleDelete = async (id_vehiculo) => {
+    if (window.confirm('¿Está seguro que desea eliminar este vehículo? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('vehiculos').delete().eq('id_vehiculo', id_vehiculo);
+        if (error) {
+          if (error.code === '23503') {
+            alert('No se puede eliminar este vehículo porque tiene choferes asignados u otros datos vinculados. Primero debe desvincularlos.');
+          } else {
+            alert('Error al eliminar: ' + error.message);
+          }
+          throw error;
+        }
+        fetchData();
+      } catch (error) {
+        console.error('Error al eliminar vehículo:', error);
+      }
     }
   };
 
@@ -228,6 +247,16 @@ const Vehiculos = () => {
                       <button className="btn-outline" style={{padding: '0.25rem 0.5rem', border: '1px solid var(--primary-color)'}} title="Asignar Chofer" onClick={() => setChoferModal({ show: true, vehiculo: v })}>
                         <UserPlus size={16} />
                       </button>
+                      {profile?.rol === 'Administrador' && (
+                        <button 
+                          className="btn-outline" 
+                          style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)', marginLeft: '0.25rem'}} 
+                          title="Eliminar"
+                          onClick={() => handleDelete(v.id_vehiculo)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

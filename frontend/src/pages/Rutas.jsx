@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, X, Map, MapPin } from 'lucide-react';
+import { Plus, X, Map, MapPin, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -43,6 +44,7 @@ function MapEvents({ onMapClick }) {
 }
 
 const Rutas = () => {
+  const { profile } = useAuth();
   const [rutas, setRutas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -117,6 +119,18 @@ const Rutas = () => {
     } else alert('Error: ' + error.message);
   };
 
+  const handleDelete = async (id_ruta) => {
+    if (window.confirm('¿Está seguro que desea eliminar esta ruta? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('rutas').delete().eq('id_ruta', id_ruta);
+        if (error) throw error;
+        fetchData();
+      } catch (error) {
+        alert('Error al eliminar ruta: ' + error.message);
+      }
+    }
+  };
+
   const handleMapClick = (latlng) => {
     if (viewRouteMode) return; // Disallow edits if just viewing
     
@@ -183,7 +197,6 @@ const Rutas = () => {
                     <td><span className={`badge ${r.estado === 1 ? 'badge-success' : 'badge-danger'}`}>
                       {r.estado === 1 ? 'Activa' : 'Inactiva'}
                     </span></td>
-                    <td>
                       <button 
                         className="btn btn-icon" 
                         title="Ver en Mapa"
@@ -192,6 +205,16 @@ const Rutas = () => {
                       >
                         <Map size={18} />
                       </button>
+                      {profile?.rol === 'Administrador' && (
+                        <button 
+                          className="btn-outline" 
+                          style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)', marginLeft: '0.25rem'}} 
+                          title="Eliminar"
+                          onClick={() => handleDelete(r.id_ruta)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

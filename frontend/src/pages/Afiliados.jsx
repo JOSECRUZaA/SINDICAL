@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import './Afiliados.css';
 
 const Afiliados = () => {
+  const { profile } = useAuth();
   const [afiliados, setAfiliados] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [perfiles, setPerfiles] = useState([]);
@@ -76,6 +77,25 @@ const Afiliados = () => {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id_afiliado) => {
+    if (window.confirm('¿Está seguro que desea eliminar este registro? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('afiliados').delete().eq('id_afiliado', id_afiliado);
+        if (error) {
+          if (error.code === '23503') { // Foreign key constraint
+            alert('No se puede eliminar este afiliado porque tiene otros datos asociados (vehículos, deudas, asambleas, etc.). Primero debe eliminar esos registros.');
+          } else {
+            alert('Error al eliminar: ' + error.message);
+          }
+          throw error;
+        }
+        fetchData();
+      } catch (error) {
+        console.error('Error al eliminar:', error);
+      }
     }
   };
 
@@ -361,6 +381,16 @@ const Afiliados = () => {
                       >
                         <Edit size={16} />
                       </button>
+                      {profile?.rol === 'Administrador' && (
+                        <button 
+                          className="btn-outline" 
+                          style={{padding: '0.25rem 0.5rem', border: 'none', color: 'var(--danger-color)'}} 
+                          title="Eliminar"
+                          onClick={() => handleDelete(afiliado.id_afiliado)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
