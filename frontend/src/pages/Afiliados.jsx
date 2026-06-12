@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Search, X, Edit, Trash2, Eye, User, Lock, Mail, CreditCard } from 'lucide-react';
+import { Plus, Search, X, Edit, UserPlus, RefreshCw, Trash2, Eye, User, Lock, Mail, CreditCard } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { createClient } from '@supabase/supabase-js';
 import './Afiliados.css';
 
@@ -83,6 +84,24 @@ const Afiliados = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const generateStrongPassword = () => {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let pwd = "";
+    for(let i=0; i<10; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pwd;
+  };
+
+  const handleCrearCuentaToggle = (e) => {
+    const checked = e.target.checked;
+    setFormData(prev => ({
+      ...prev,
+      crear_cuenta_web: checked,
+      password: checked && !prev.password ? generateStrongPassword() : prev.password
+    }));
+  };
+
   const handlePerfilChange = (e) => {
     const selectedId = e.target.value;
     const selectedProfile = perfiles.find(p => p.id_perfil.toString() === selectedId);
@@ -108,8 +127,10 @@ const Afiliados = () => {
           const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
           const tempClient = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
+          const emailFinal = formData.correo.includes('@') ? formData.correo : `${formData.correo}@sindicato.org`;
+
           const { data: authData, error: authError } = await tempClient.auth.signUp({
-            email: formData.correo,
+            email: emailFinal,
             password: formData.password,
             options: { data: { nombres: formData.nombres, ci: formData.ci } }
           });
@@ -412,7 +433,7 @@ const Afiliados = () => {
                       
                       <div className="form-group full-width" style={{ marginTop: '0.5rem' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 'bold' }}>
-                          <input type="checkbox" checked={formData.crear_cuenta_web} onChange={e => setFormData({...formData, crear_cuenta_web: e.target.checked})} style={{ width: '1.2rem', height: '1.2rem' }} />
+                          <input type="checkbox" checked={formData.crear_cuenta_web} onChange={handleCrearCuentaToggle} style={{ width: '1.2rem', height: '1.2rem' }} />
                           Crear cuenta de acceso web ahora mismo
                         </label>
                       </div>
@@ -420,12 +441,22 @@ const Afiliados = () => {
                       {formData.crear_cuenta_web && (
                          <div className="form-group full-width" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', background: 'var(--bg-color)', padding: '1rem', borderRadius: '8px' }}>
                            <div className="form-group">
-                             <label className="form-label">Correo Electrónico</label>
-                             <input type="email" name="correo" required={formData.crear_cuenta_web} value={formData.correo} onChange={handleInputChange} />
+                             <label className="form-label">Nombre de Usuario</label>
+                             <div style={{display: 'flex', alignItems: 'center'}}>
+                               <input type="text" name="correo" required={formData.crear_cuenta_web} value={formData.correo} onChange={handleInputChange} placeholder="ej. juan.perez" style={{flex: 1, borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRight: 'none'}} />
+                               <div style={{padding: '0.5rem 0.6rem', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderTopRightRadius: '0.5rem', borderBottomRightRadius: '0.5rem', color: 'var(--text-muted)'}}>
+                                 @sindicato.org
+                               </div>
+                             </div>
                            </div>
                            <div className="form-group">
-                             <label className="form-label">Contraseña Temporal</label>
-                             <input type="text" name="password" required={formData.crear_cuenta_web} minLength={6} value={formData.password} onChange={handleInputChange} />
+                             <label className="form-label" style={{display:'flex', justifyContent:'space-between', alignItems: 'center'}}>
+                               <span>Contraseña Temporal</span>
+                               <button type="button" onClick={() => setFormData({...formData, password: generateStrongPassword()})} style={{background:'none', border:'none', color:'var(--primary-color)', cursor:'pointer', display:'flex', alignItems:'center', gap:'0.25rem', fontSize:'0.8rem'}}>
+                                 <RefreshCw size={12} /> Regenerar
+                               </button>
+                             </label>
+                             <input type="text" name="password" required={formData.crear_cuenta_web} minLength={6} value={formData.password} onChange={handleInputChange} style={{letterSpacing: '1px', fontFamily: 'monospace', fontWeight: 'bold'}} />
                            </div>
                          </div>
                       )}
