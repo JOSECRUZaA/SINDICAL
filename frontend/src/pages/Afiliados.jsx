@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Search, X, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, X, Edit, Trash2, Eye, User, Lock, Mail, CreditCard } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import './Afiliados.css';
 
 const Afiliados = () => {
@@ -21,13 +22,10 @@ const Afiliados = () => {
   
   // Form State
   const [formData, setFormData] = useState({
-    numero_afiliado: '',
-    ci: '',
-    tipo_afiliado: 'Socio Propietario',
-    id_categoria_licencia: '',
-    id_perfil: '',
-    estado_organico: 'Activo',
-    fecha_ingreso: new Date().toISOString().split('T')[0],
+    numero_afiliado: '', ci: '', nombres: '', paterno: '', materno: '',
+    tipo_afiliado: 'Socio Propietario', id_categoria_licencia: '', id_perfil: '',
+    estado_organico: 'Pendiente', fecha_ingreso: new Date().toISOString().split('T')[0],
+    crear_cuenta_web: false, correo: '', password: ''
   });
 
   useEffect(() => {
@@ -85,40 +83,95 @@ const Afiliados = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handlePerfilChange = (e) => {
+    const selectedId = e.target.value;
+    const selectedProfile = perfiles.find(p => p.id_perfil.toString() === selectedId);
+    
+    setFormData(prev => ({
+      ...prev,
+      id_perfil: selectedId,
+      // Auto-completar CI si se selecciona un perfil y el campo actual está vacío o queremos sobreescribirlo
+      ci: selectedProfile ? (selectedProfile.ci || prev.ci) : prev.ci
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let final_id_perfil = formData.id_perfil || null;
+
+      if (!editingId && !formData.id_perfil) {
+        // Estamos creando un afiliado nuevo SIN vincularlo a un perfil existente
+        // Por lo tanto, debemos crearle un perfil físico
+        if (formData.crear_cuenta_web) {
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+          const tempClient = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false, autoRefreshToken: false } });
+
+          const { data: authData, error: authError } = await tempClient.auth.signUp({
+            email: formData.correo,
+            password: formData.password,
+            options: { data: { nombres: formData.nombres, ci: formData.ci } }
+          });
+
+          if (authError) throw authError;
+          await new Promise(resolve => setTimeout(resolve, 800)); // Esperar al trigger
+
+          const { data: perfData, error: profileError } = await supabase.from('perfiles')
+            .update({ paterno: formData.paterno, materno: formData.materno, ci: formData.ci, nombres: formData.nombres })
+            .eq('auth_user_id', authData.user.id)
+            .select('id_perfil').single();
+            
+          if (profileError) throw profileError;
+          final_id_perfil = perfData.id_perfil;
+        } else {
+          // Crear perfil manual sin cuenta auth
+          const { data: perfData, error: profileError } = await supabase.from('perfiles')
+            .insert([{ nombres: formData.nombres, paterno: formData.paterno, materno: formData.materno, ci: formData.ci, rol: 'Afiliado' }])
+            .select('id_perfil').single();
+          if (profileError) throw profileError;
+          final_id_perfil = perfData.id_perfil;
+        }
+      }
+
       const payload = {
         numero_afiliado: formData.numero_afiliado,
-        ci: formData.ci || null,
         tipo_afiliado: formData.tipo_afiliado,
         id_categoria_licencia: formData.id_categoria_licencia || null,
-        id_perfil: formData.id_perfil || null,
+        id_perfil: final_id_perfil,
         estado_organico: formData.estado_organico,
         fecha_ingreso: formData.fecha_ingreso
       };
 
-      let error;
       if (editingId) {
-        const res = await supabase.from('afiliados').update(payload).eq('id_afiliado', editingId);
-        error = res.error;
+        const { error } = await supabase.from('afiliados').update(payload).eq('id_afiliado', editingId);
+        if (error) throw error;
       } else {
-        const res = await supabase.from('afiliados').insert([payload]);
-        error = res.error;
-      }
+        const { data: newAfiliado, error } = await supabase.from('afiliados').insert([payload]).select('id_afiliado').single();
+        if (error) throw error;
 
-      if (error) throw error;
+        // Generar Cuota de Ingreso Automáticamente
+        const { data: cuotaIngreso } = await supabase.from('tipos_cuota').select('*').eq('nombre', 'Cuota de Ingreso').single();
+        if (cuotaIngreso) {
+          await supabase.from('obligaciones_financieras').insert([{
+            id_afiliado: newAfiliado.id_afiliado,
+            id_tipo_cuota: cuotaIngreso.id_tipo_cuota,
+            tipo_obligacion: 'Cuota',
+            concepto: 'Cuota de Ingreso',
+            monto_total: cuotaIngreso.monto_default,
+            fecha_limite: new Date().toISOString().split('T')[0],
+            estado: 'Pendiente'
+          }]);
+        }
+      }
       
       setShowModal(false);
       setEditingId(null);
       setFormData({
-        numero_afiliado: '',
-        ci: '',
-        tipo_afiliado: 'Socio Propietario',
-        id_categoria_licencia: '',
-        id_perfil: '',
-        estado_organico: 'Activo',
-        fecha_ingreso: new Date().toISOString().split('T')[0],
+        numero_afiliado: '', ci: '', nombres: '', paterno: '', materno: '',
+        tipo_afiliado: 'Socio Propietario', id_categoria_licencia: '', id_perfil: '',
+        estado_organico: 'Pendiente', fecha_ingreso: new Date().toISOString().split('T')[0],
+        crear_cuenta_web: false, correo: '', password: ''
       });
       fetchData();
     } catch (error) {
@@ -128,13 +181,13 @@ const Afiliados = () => {
 
   const handleEditClick = (afiliado) => {
     setFormData({
-      numero_afiliado: afiliado.numero_afiliado || '',
-      ci: afiliado.ci || '',
+      numero_afiliado: afiliado.numero_afiliado || '', ci: '', nombres: '', paterno: '', materno: '',
       tipo_afiliado: afiliado.tipo_afiliado || 'Socio Propietario',
       id_categoria_licencia: afiliado.id_categoria_licencia || '',
       id_perfil: afiliado.id_perfil || '',
       estado_organico: afiliado.estado_organico || 'Activo',
       fecha_ingreso: afiliado.fecha_ingreso ? afiliado.fecha_ingreso.split('T')[0] : new Date().toISOString().split('T')[0],
+      crear_cuenta_web: false, correo: '', password: ''
     });
     setEditingId(afiliado.id_afiliado);
     setShowModal(true);
@@ -144,6 +197,15 @@ const Afiliados = () => {
     a.numero_afiliado?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     a.tipo_afiliado?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const unlinkedProfiles = perfiles.filter(p => {
+    // Mostrar si es el perfil que ya tiene asignado actualmente (para no perderlo al editar)
+    if (editingId && formData.id_perfil && formData.id_perfil.toString() === p.id_perfil.toString()) {
+      return true;
+    }
+    // Mostrar solo si no está en la lista de afiliados
+    return !afiliados.some(a => a.id_perfil === p.id_perfil);
+  });
 
   const getBadgeClass = (estado) => {
     switch(estado) {
@@ -189,13 +251,10 @@ const Afiliados = () => {
           <button className="btn btn-primary" onClick={() => {
             setEditingId(null);
             setFormData({
-              numero_afiliado: '',
-              ci: '',
-              tipo_afiliado: 'Socio Propietario',
-              id_categoria_licencia: '',
-              id_perfil: '',
-              estado_organico: 'Activo',
-              fecha_ingreso: new Date().toISOString().split('T')[0],
+              numero_afiliado: '', ci: '', nombres: '', paterno: '', materno: '',
+              tipo_afiliado: 'Socio Propietario', id_categoria_licencia: '', id_perfil: '',
+              estado_organico: 'Pendiente', fecha_ingreso: new Date().toISOString().split('T')[0],
+              crear_cuenta_web: false, correo: '', password: ''
             });
             setShowModal(true);
           }}>
@@ -239,7 +298,11 @@ const Afiliados = () => {
                 {filteredAfiliados.map(afiliado => (
                   <tr key={afiliado.id_afiliado}>
                     <td className="font-medium text-white">{afiliado.numero_afiliado}</td>
-                    <td>{afiliado.perfiles ? `${afiliado.perfiles.nombres} ${afiliado.perfiles.paterno || ''}` : <span className="text-muted text-sm">Sin vincular</span>}</td>
+                    <td>
+                      {afiliado.perfiles 
+                        ? `${afiliado.perfiles.nombres} ${afiliado.perfiles.paterno || ''}` 
+                        : <span className="badge badge-warning" style={{fontSize: '0.7rem'}}>Sin vincular</span>}
+                    </td>
                     <td>{afiliado.tipo_afiliado}</td>
                     <td>{afiliado.categorias_licencia?.categoria || '-'}</td>
                     <td>{new Date(afiliado.fecha_ingreso).toLocaleDateString()}</td>
@@ -301,16 +364,69 @@ const Afiliados = () => {
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Cédula de Identidad (CI)</label>
-                    <input 
-                      type="text" 
-                      name="ci" 
-                      value={formData.ci}
-                      onChange={handleInputChange}
-                      placeholder="Ej. 1234567"
-                    />
+                  <div className="form-group full-width">
+                    <label className="form-label">Vincular con Perfil Existente</label>
+                    <select name="id_perfil" value={formData.id_perfil || ''} onChange={handlePerfilChange}>
+                      <option value="">+ Crear Perfil Físico Nuevo...</option>
+                      {unlinkedProfiles.map(p => (
+                        <option key={p.id_perfil} value={p.id_perfil}>
+                          {p.nombres} {p.paterno || ''} ({p.rol})
+                        </option>
+                      ))}
+                    </select>
                   </div>
+
+                  {!formData.id_perfil && !editingId && (
+                    <div className="form-group full-width" style={{ padding: '1rem', background: 'rgba(0,0,0,0.03)', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div className="form-group full-width" style={{marginBottom: 0}}>
+                        <h4 style={{fontSize: '0.9rem', color: 'var(--primary-color)'}}>Datos del Nuevo Perfil Físico</h4>
+                      </div>
+                      <div className="form-group full-width">
+                        <label className="form-label">Nombres Completos</label>
+                        <input type="text" name="nombres" required value={formData.nombres} onChange={handleInputChange} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Apellido Paterno</label>
+                        <input type="text" name="paterno" value={formData.paterno} onChange={handleInputChange} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Apellido Materno</label>
+                        <input type="text" name="materno" value={formData.materno} onChange={handleInputChange} />
+                      </div>
+                      <div className="form-group full-width">
+                        <label className="form-label">Cédula de Identidad (CI)</label>
+                        <input type="text" name="ci" required value={formData.ci} onChange={handleInputChange} placeholder="Ej. 1234567-LP" />
+                      </div>
+                      
+                      <div className="form-group full-width" style={{ marginTop: '0.5rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 'bold' }}>
+                          <input type="checkbox" checked={formData.crear_cuenta_web} onChange={e => setFormData({...formData, crear_cuenta_web: e.target.checked})} style={{ width: '1.2rem', height: '1.2rem' }} />
+                          Crear cuenta de acceso web ahora mismo
+                        </label>
+                      </div>
+
+                      {formData.crear_cuenta_web && (
+                         <div className="form-group full-width" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', background: 'var(--bg-color)', padding: '1rem', borderRadius: '8px' }}>
+                           <div className="form-group">
+                             <label className="form-label">Correo Electrónico</label>
+                             <input type="email" name="correo" required={formData.crear_cuenta_web} value={formData.correo} onChange={handleInputChange} />
+                           </div>
+                           <div className="form-group">
+                             <label className="form-label">Contraseña Temporal</label>
+                             <input type="text" name="password" required={formData.crear_cuenta_web} minLength={6} value={formData.password} onChange={handleInputChange} />
+                           </div>
+                         </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Si edita, o si vinculó perfil, solo mostrar el CI info */}
+                  {(formData.id_perfil || editingId) && (
+                    <div className="form-group">
+                      <label className="form-label">Cédula de Identidad (CI Vinculado)</label>
+                      <input type="text" name="ci" value={formData.ci} onChange={handleInputChange} disabled style={{backgroundColor: 'var(--border-color)', color: 'var(--text-muted)'}} />
+                    </div>
+                  )}
                   
                   <div className="form-group">
                     <label className="form-label">Tipo de Afiliado</label>
@@ -336,21 +452,10 @@ const Afiliados = () => {
                   <div className="form-group">
                     <label className="form-label">Estado Orgánico</label>
                     <select name="estado_organico" value={formData.estado_organico} onChange={handleInputChange}>
+                      <option value="Pendiente">Pendiente (Alta)</option>
                       <option value="Activo">Activo</option>
                       <option value="Suspendido">Suspendido</option>
                       <option value="Retirado">Retirado</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Vincular con Usuario</label>
-                    <select name="id_perfil" value={formData.id_perfil || ''} onChange={handleInputChange}>
-                      <option value="">No vincular por ahora...</option>
-                      {perfiles.map(p => (
-                        <option key={p.id_perfil} value={p.id_perfil}>
-                          {p.nombres} {p.paterno || ''} ({p.correo})
-                        </option>
-                      ))}
                     </select>
                   </div>
 

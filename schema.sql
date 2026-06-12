@@ -20,7 +20,7 @@
         correo VARCHAR(150) UNIQUE,
         celular VARCHAR(15),
         fotografia VARCHAR(255),
-        rol VARCHAR(30) DEFAULT 'Consulta' CHECK (rol IN ('Administrador', 'Secretario', 'Tesorero', 'Controlador', 'Consulta', 'Afiliado')),
+        rol VARCHAR(30) DEFAULT 'Afiliado' CHECK (rol IN ('Administrador', 'Secretario', 'Tesorero', 'Controlador', 'Afiliado')),
         estado SMALLINT DEFAULT 1 CHECK (estado IN (0, 1)),
         fecha_registro TIMESTAMPTZ DEFAULT now()
     );
@@ -60,14 +60,31 @@
         estado VARCHAR(30) DEFAULT 'Operativo' CHECK (estado IN ('Operativo', 'Restricción Vehicular', 'Restricción Sindical', 'Mantenimiento', 'Baja'))
     );
 
+    -- 3.X Choferes Externos (Relevos Asalariados)
+    CREATE TABLE choferes_externos (
+        id_chofer_externo SERIAL PRIMARY KEY,
+        nombres VARCHAR(100) NOT NULL,
+        paterno VARCHAR(50),
+        materno VARCHAR(50),
+        ci VARCHAR(20) UNIQUE NOT NULL,
+        licencia VARCHAR(20),
+        telefono VARCHAR(20),
+        estado SMALLINT DEFAULT 1 CHECK (estado IN (0, 1))
+    );
+
     -- 3.5 Chofer Vehiculo (Asignacion)
     CREATE TABLE chofer_vehiculo (
         id_asignacion SERIAL PRIMARY KEY,
         id_vehiculo INT REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
         id_chofer INT REFERENCES afiliados(id_afiliado) ON DELETE CASCADE,
+        id_chofer_externo INT REFERENCES choferes_externos(id_chofer_externo) ON DELETE CASCADE,
         fecha_asignacion DATE DEFAULT CURRENT_DATE,
         fecha_fin DATE CHECK (fecha_fin > fecha_asignacion),
-        estado SMALLINT DEFAULT 1 CHECK (estado IN (0, 1))
+        estado SMALLINT DEFAULT 1 CHECK (estado IN (0, 1)),
+        CHECK (
+            (id_chofer IS NOT NULL AND id_chofer_externo IS NULL) OR 
+            (id_chofer IS NULL AND id_chofer_externo IS NOT NULL)
+        )
     );
 
     -- 3.6 Rutas
@@ -100,7 +117,7 @@
         id_registrador INT REFERENCES perfiles(id_perfil),
         fecha DATE NOT NULL,
         hora TIME,
-        tipo VARCHAR(20) CHECK (tipo IN ('Ordinaria', 'Extraordinaria', 'Eleccionaria')),
+        tipo VARCHAR(20) CHECK (tipo IN ('Ordinaria', 'Extraordinaria', 'Eleccionaria', 'Magna', 'Directiva')),
         lugar VARCHAR(150),
         quorum_minimo SMALLINT,
         acta_url VARCHAR(255)
@@ -250,7 +267,7 @@
         COALESCE(NEW.raw_user_meta_data->>'nombres','Nuevo'),
         NEW.email, 
         COALESCE(NEW.raw_user_meta_data->>'ci', 'CI-' || extract(epoch from now())::varchar), -- Fallback para CI (NOT NULL)
-        'Consulta'
+        'Afiliado'
     )
     ON CONFLICT (auth_user_id) DO UPDATE
         SET auth_user_id = EXCLUDED.auth_user_id;

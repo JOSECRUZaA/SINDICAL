@@ -20,7 +20,7 @@ const Dashboard = () => {
   const location = useLocation();
 
   const navItems = [
-    { id: 'm0', label: 'Mi Portal', icon: User, path: '/mi-portal', roles: ['Consulta', 'Afiliado', 'Chofer', 'Relevo', 'Administrador', 'Secretario', 'Tesorero', 'Controlador'] },
+    { id: 'm0', label: 'Mi Portal', icon: User, path: '/mi-portal', roles: ['Afiliado', 'Administrador', 'Secretario', 'Tesorero', 'Controlador'] },
     { id: 'm1', label: 'Perfiles', icon: Shield, path: '/perfiles', roles: ['Administrador'] },
     { id: 'm2', label: 'Afiliados', icon: Users, path: '/afiliados', roles: ['Administrador', 'Secretario'] },
     { id: 'm3', label: 'Vehículos', icon: Bus, path: '/vehiculos', roles: ['Administrador', 'Secretario', 'Controlador'] },

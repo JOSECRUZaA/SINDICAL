@@ -10,11 +10,11 @@ const Usuarios = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
-    nombres: '', paterno: '', materno: '', ci: '', correo: '', password: '', rol: 'Consulta'
+    nombres: '', paterno: '', materno: '', ci: '', correo: '', password: '', rol: 'Afiliado'
   });
   
   // Lista de roles permitidos en el sistema
-  const ROLES = ['Administrador', 'Secretario', 'Tesorero', 'Controlador', 'Consulta', 'Afiliado', 'Chofer', 'Relevo'];
+  const ROLES = ['Administrador', 'Secretario', 'Tesorero', 'Controlador', 'Afiliado'];
 
   useEffect(() => {
     fetchUsuarios();
@@ -71,7 +71,7 @@ const Usuarios = () => {
       ci: user.ci || '',
       correo: user.correo || '',
       password: '', // No mostrar contraseña
-      rol: user.rol || 'Consulta'
+      rol: user.rol || 'Afiliado'
     });
     setShowModal(true);
   };
@@ -164,7 +164,7 @@ const Usuarios = () => {
         </div>
         <button className="btn btn-primary" onClick={() => {
           setEditingUser(null);
-          setFormData({ nombres: '', paterno: '', materno: '', ci: '', correo: '', password: '', rol: 'Consulta' });
+          setFormData({ nombres: '', paterno: '', materno: '', ci: '', correo: '', password: '', rol: 'Afiliado' });
           setShowModal(true);
         }}>
           <Plus size={18} /> Nuevo Usuario

@@ -12,7 +12,11 @@ const Vehiculos = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [choferModal, setChoferModal] = useState({ show: false, vehiculo: null });
-  const [choferFormData, setChoferFormData] = useState({ id_chofer: '' });
+  const [isExterno, setIsExterno] = useState(false);
+  const [choferFormData, setChoferFormData] = useState({ 
+    id_chofer: '',
+    nombres_ext: '', paterno_ext: '', materno_ext: '', ci_ext: '', licencia_ext: '', telefono_ext: ''
+  });
   
   const [formData, setFormData] = useState({
     numero_disco: '',
@@ -43,7 +47,14 @@ const Vehiculos = () => {
         .from('vehiculos')
         .select(`
           *,
-          afiliados (numero_afiliado, perfiles(nombres))
+          afiliados (numero_afiliado, perfiles(nombres, paterno)),
+          chofer_vehiculo (
+            id_chofer,
+            id_chofer_externo,
+            estado,
+            afiliados (numero_afiliado, perfiles(nombres, paterno)),
+            choferes_externos (nombres, paterno, ci)
+          )
         `)
         .order('numero_disco', { ascending: true });
         
@@ -91,22 +102,49 @@ const Vehiculos = () => {
 
   const handleAssignChofer = async (e) => {
     e.preventDefault();
-    if (!choferFormData.id_chofer) return;
-
     try {
-      const { error } = await supabase.from('chofer_vehiculo').insert([{
-        id_vehiculo: choferModal.vehiculo.id_vehiculo,
-        id_chofer: parseInt(choferFormData.id_chofer),
-        fecha_asignacion: new Date().toISOString().split('T')[0],
-        estado: 1
-      }]);
+      if (isExterno) {
+        if (!choferFormData.nombres_ext || !choferFormData.ci_ext) return alert("Nombre y CI son requeridos");
+        
+        // 1. Insertar chofer externo
+        const { data: extData, error: extError } = await supabase.from('choferes_externos').insert([{
+          nombres: choferFormData.nombres_ext,
+          paterno: choferFormData.paterno_ext,
+          materno: choferFormData.materno_ext,
+          ci: choferFormData.ci_ext,
+          licencia: choferFormData.licencia_ext,
+          telefono: choferFormData.telefono_ext
+        }]).select();
+        
+        if (extError) throw extError;
 
-      if (error) throw error;
+        // 2. Asignar al vehículo
+        const { error: asignError } = await supabase.from('chofer_vehiculo').insert([{
+          id_vehiculo: choferModal.vehiculo.id_vehiculo,
+          id_chofer: null,
+          id_chofer_externo: extData[0].id_chofer_externo,
+          fecha_asignacion: new Date().toISOString().split('T')[0],
+          estado: 1
+        }]);
+        if (asignError) throw asignError;
+
+      } else {
+        if (!choferFormData.id_chofer) return;
+        const { error } = await supabase.from('chofer_vehiculo').insert([{
+          id_vehiculo: choferModal.vehiculo.id_vehiculo,
+          id_chofer: parseInt(choferFormData.id_chofer),
+          id_chofer_externo: null,
+          fecha_asignacion: new Date().toISOString().split('T')[0],
+          estado: 1
+        }]);
+        if (error) throw error;
+      }
       
       alert('Chofer asignado exitosamente.');
       setChoferModal({ show: false, vehiculo: null });
-      setChoferFormData({ id_chofer: '' });
-      // fetchData() // no es estrictamente necesario ya que la tabla muestra propietarios, no choferes
+      setChoferFormData({ id_chofer: '', nombres_ext: '', paterno_ext: '', materno_ext: '', ci_ext: '', licencia_ext: '', telefono_ext: '' });
+      setIsExterno(false);
+      fetchData(); 
     } catch (error) {
       alert('Error al asignar chofer: ' + error.message);
     }
@@ -163,7 +201,23 @@ const Vehiculos = () => {
                     <td className="font-medium text-white">Nº {v.numero_disco}</td>
                     <td><span className="badge badge-neutral" style={{letterSpacing:'1px'}}>{v.placa}</span></td>
                     <td>{v.numero_linea}</td>
-                    <td>{v.afiliados?.perfiles?.nombres || v.afiliados?.numero_afiliado || 'Sin Asignar'}</td>
+                    <td>
+                      <div style={{fontWeight: 'bold', color: 'var(--text-main)'}}>
+                        Prop: {v.afiliados?.perfiles?.nombres} {v.afiliados?.perfiles?.paterno || ''} 
+                        <span className="text-muted" style={{fontSize: '0.8rem', marginLeft:'0.3rem'}}>({v.afiliados?.numero_afiliado || 'Sin Asignar'})</span>
+                      </div>
+                      
+                      {v.chofer_vehiculo?.filter(c => c.estado === 1).map(c => (
+                        <div key={c.id_chofer || c.id_chofer_externo} style={{fontSize: '0.85rem', color: 'var(--accent-color)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem'}}>
+                          <UserPlus size={12} /> 
+                          {c.id_chofer ? (
+                            <span>Chofer (Socio): {c.afiliados?.perfiles?.nombres} {c.afiliados?.perfiles?.paterno || ''}</span>
+                          ) : (
+                            <span>Chofer (Externo): {c.choferes_externos?.nombres} {c.choferes_externos?.paterno || ''} <span className="text-muted" style={{marginLeft:'0.25rem'}}>(CI: {c.choferes_externos?.ci})</span></span>
+                          )}
+                        </div>
+                      ))}
+                    </td>
                     <td>{v.marca} {v.modelo} <span className="text-muted">({v.color})</span></td>
                     <td>
                       <span className={`badge ${v.estado === 'Operativo' ? 'badge-success' : 'badge-warning'}`}>
@@ -269,20 +323,57 @@ const Vehiculos = () => {
 
             <form onSubmit={handleAssignChofer}>
               <div className="modal-body form-grid">
-                <div className="form-group full-width">
-                  <label className="form-label">Seleccione el Chofer</label>
-                  <select required value={choferFormData.id_chofer} onChange={e => setChoferFormData({ id_chofer: e.target.value })}>
-                    <option value="">Seleccione un afiliado/chofer...</option>
-                    {afiliados.map(a => (
-                      // Excluir al propietario actual de la lista para no redundar
-                      a.id_afiliado !== choferModal.vehiculo.id_propietario && (
-                        <option key={a.id_afiliado} value={a.id_afiliado}>
-                          {a.numero_afiliado} - {a.perfiles?.nombres}
-                        </option>
-                      )
-                    ))}
-                  </select>
+                <div className="form-group full-width" style={{display: 'flex', gap: '1rem', background: 'var(--surface-color)', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)'}}>
+                  <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
+                    <input type="radio" checked={!isExterno} onChange={() => setIsExterno(false)} /> Es Afiliado (Socio)
+                  </label>
+                  <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
+                    <input type="radio" checked={isExterno} onChange={() => setIsExterno(true)} /> Es Chofer Externo
+                  </label>
                 </div>
+
+                {!isExterno ? (
+                  <div className="form-group full-width">
+                    <label className="form-label">Seleccione el Chofer Afiliado</label>
+                    <select required value={choferFormData.id_chofer} onChange={e => setChoferFormData({...choferFormData, id_chofer: e.target.value })}>
+                      <option value="">Seleccione un afiliado...</option>
+                      {afiliados.map(a => (
+                        a.id_afiliado !== choferModal.vehiculo.id_propietario && (
+                          <option key={a.id_afiliado} value={a.id_afiliado}>
+                            {a.numero_afiliado} - {a.perfiles?.nombres} {a.perfiles?.paterno}
+                          </option>
+                        )
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <>
+                    <div className="form-group full-width">
+                      <label className="form-label">Nombres Completos</label>
+                      <input type="text" required value={choferFormData.nombres_ext} onChange={e => setChoferFormData({...choferFormData, nombres_ext: e.target.value})} placeholder="Nombres del chofer..." />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Ap. Paterno</label>
+                      <input type="text" value={choferFormData.paterno_ext} onChange={e => setChoferFormData({...choferFormData, paterno_ext: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Ap. Materno</label>
+                      <input type="text" value={choferFormData.materno_ext} onChange={e => setChoferFormData({...choferFormData, materno_ext: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">C.I. (Documento)</label>
+                      <input type="text" required value={choferFormData.ci_ext} onChange={e => setChoferFormData({...choferFormData, ci_ext: e.target.value})} placeholder="Nº de Carnet" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Nº de Licencia</label>
+                      <input type="text" value={choferFormData.licencia_ext} onChange={e => setChoferFormData({...choferFormData, licencia_ext: e.target.value})} />
+                    </div>
+                    <div className="form-group full-width">
+                      <label className="form-label">Teléfono / Celular</label>
+                      <input type="text" value={choferFormData.telefono_ext} onChange={e => setChoferFormData({...choferFormData, telefono_ext: e.target.value})} />
+                    </div>
+                  </>
+                )}
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-outline" onClick={() => setChoferModal({ show: false, vehiculo: null })}>Cancelar</button>
