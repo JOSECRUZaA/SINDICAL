@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { UserCog, Search, ShieldAlert, Check, Plus, Edit, X, User, Mail, Lock, CreditCard, Shield } from 'lucide-react';
+import { UserCog, Search, ShieldAlert, Check, Plus, Edit, X, User, Mail, Lock, CreditCard, Shield, RefreshCw } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const Usuarios = () => {
@@ -15,6 +15,15 @@ const Usuarios = () => {
   
   // Lista de roles permitidos en el sistema
   const ROLES = ['Administrador', 'Secretario', 'Tesorero', 'Controlador', 'Afiliado'];
+
+  const generateStrongPassword = () => {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let pwd = "";
+    for(let i=0; i<10; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pwd;
+  };
 
   useEffect(() => {
     fetchUsuarios();
@@ -106,8 +115,10 @@ const Usuarios = () => {
           auth: { persistSession: false, autoRefreshToken: false }
         });
 
+        const emailFinal = formData.correo.includes('@') ? formData.correo : `${formData.correo}@sindicato.org`;
+
         const { data: authData, error: authError } = await tempClient.auth.signUp({
-          email: formData.correo,
+          email: emailFinal,
           password: formData.password,
           options: {
             data: {
@@ -120,24 +131,30 @@ const Usuarios = () => {
         if (authError) throw authError;
 
         if (authData?.user) {
-          // El trigger handle_new_user de Supabase ya insertó la fila base.
-          // Solo necesitamos actualizarla con el resto de datos (paterno, materno, rol real).
-          
-          // Damos unos milisegundos para que el trigger termine
-          await new Promise(resolve => setTimeout(resolve, 800));
-
-          const { error: profileError } = await supabase
-            .from('perfiles')
-            .update({
-              nombres: formData.nombres, // Por si acaso
-              paterno: formData.paterno,
-              materno: formData.materno,
-              ci: formData.ci,
-              rol: formData.rol
-            })
-            .eq('auth_user_id', authData.user.id);
-          
-          if (profileError) throw profileError;
+          // Reintentos para esperar que el trigger de Supabase cree el perfil
+          let updated = false;
+          for (let i = 0; i < 5; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const { data } = await supabase
+              .from('perfiles')
+              .update({
+                nombres: formData.nombres, // Por si acaso
+                paterno: formData.paterno,
+                materno: formData.materno,
+                ci: formData.ci,
+                rol: formData.rol
+              })
+              .eq('auth_user_id', authData.user.id)
+              .select('id_perfil');
+              
+            if (data && data.length > 0) {
+              updated = true;
+              break;
+            }
+          }
+          if (!updated) {
+             throw new Error("El sistema está tardando en crear el perfil (Trigger Auth). Revisa la lista en unos momentos.");
+          }
         }
         
         setShowModal(false);
@@ -164,7 +181,7 @@ const Usuarios = () => {
         </div>
         <button className="btn btn-primary" onClick={() => {
           setEditingUser(null);
-          setFormData({ nombres: '', paterno: '', materno: '', ci: '', correo: '', password: '', rol: 'Afiliado' });
+          setFormData({ nombres: '', paterno: '', materno: '', ci: '', correo: '', password: generateStrongPassword(), rol: 'Afiliado' });
           setShowModal(true);
         }}>
           <Plus size={18} /> Nuevo Usuario
@@ -327,19 +344,29 @@ const Usuarios = () => {
                   <h4 style={{ marginBottom: '0.75rem', fontSize: '0.85rem', color: 'var(--primary-color)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.25rem', fontWeight: 'bold' }}>Credenciales de Acceso</h4>
                   <div className="form-grid" style={{ gap: '0.75rem' }}>
                     <div className="form-group">
-                      <label className="form-label" style={{ color: 'var(--text-main)', fontSize: '0.8rem', fontWeight: '500' }}>Correo Electrónico</label>
-                      <div style={{ position: 'relative' }}>
-                        <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                        <input type="email" required disabled={!!editingUser} value={formData.correo} onChange={e => setFormData({...formData, correo: e.target.value})} style={{ paddingLeft: '2.5rem' }} />
+                      <label className="form-label" style={{ color: 'var(--text-main)', fontSize: '0.8rem', fontWeight: '500' }}>{editingUser ? 'Correo Electrónico' : 'Nombre de Usuario'}</label>
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <Mail size={16} style={{ position: 'absolute', left: '12px', zIndex: 1, color: 'var(--text-muted)' }} />
+                        <input type="text" required disabled={!!editingUser} value={formData.correo} onChange={e => setFormData({...formData, correo: e.target.value})} style={{ paddingLeft: '2.5rem', flex: 1, borderTopRightRadius: editingUser ? '0.5rem' : 0, borderBottomRightRadius: editingUser ? '0.5rem' : 0, borderRight: editingUser ? '1px solid var(--border-color)' : 'none' }} placeholder={editingUser ? '' : "ej. luis.perez"} />
+                        {!editingUser && (
+                          <div style={{padding: '0.62rem 0.6rem', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderTopRightRadius: '0.5rem', borderBottomRightRadius: '0.5rem', color: 'var(--text-muted)', fontSize: '0.85rem'}}>
+                            @sindicato.org
+                          </div>
+                        )}
                       </div>
                     </div>
                     
                     {!editingUser && (
                       <div className="form-group">
-                        <label className="form-label" style={{ color: 'var(--text-main)', fontSize: '0.8rem', fontWeight: '500' }}>Contraseña Temporal</label>
+                        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-main)', fontSize: '0.8rem', fontWeight: '500' }}>
+                          <span>Contraseña Temporal</span>
+                          <button type="button" onClick={() => setFormData({...formData, password: generateStrongPassword()})} style={{background:'none', border:'none', color:'var(--primary-color)', cursor:'pointer', display:'flex', alignItems:'center', gap:'0.25rem', fontSize:'0.75rem', padding:0}}>
+                            <RefreshCw size={12} /> Regenerar
+                          </button>
+                        </label>
                         <div style={{ position: 'relative' }}>
                           <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                          <input type="text" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="Mínimo 6 caracteres" minLength={6} style={{ paddingLeft: '2.5rem' }} />
+                          <input type="text" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} minLength={6} style={{ paddingLeft: '2.5rem', letterSpacing: '1px', fontFamily: 'monospace', fontWeight: 'bold' }} />
                         </div>
                       </div>
                     )}
