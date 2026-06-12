@@ -105,30 +105,50 @@ const MiPortal = () => {
         boxShadow: '0 10px 25px -5px rgba(22, 43, 76, 0.3)',
         display: 'flex',
         alignItems: 'center',
-        gap: '2rem',
+        justifyContent: 'space-between',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        flexWrap: 'wrap',
+        gap: '1.5rem'
       }}>
         {/* Decoración de fondo */}
         <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }}></div>
         <div style={{ position: 'absolute', bottom: '-80px', right: '50px', width: '150px', height: '150px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }}></div>
 
-        <div style={{ 
-          width: '80px', height: '80px', borderRadius: '50%', 
-          background: 'linear-gradient(135deg, #c08d4a 0%, #d4af37 100%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '2.5rem', fontWeight: 'bold', color: 'white',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.2)', zIndex: 1
-        }}>
-          {profile?.nombres?.charAt(0).toUpperCase() || 'A'}
-        </div>
         <div style={{ zIndex: 1 }}>
-          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>
-            Bienvenido a tu espacio personal
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>
+            Panel de Control Personal
           </p>
-          <h2 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            {profile?.nombres}
+          <h2 style={{ fontSize: '1.85rem', fontWeight: 'bold', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            Resumen Sindical
           </h2>
+        </div>
+
+        {/* Mini stats inside the banner */}
+        <div style={{ display: 'flex', gap: '1rem', zIndex: 1, flexWrap: 'wrap' }}>
+          <div style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <CheckCircle size={20} color="#4ade80" />
+            <div>
+              <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontWeight: 'bold' }}>Estado</div>
+              <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{afiliadoData.estado_organico}</div>
+            </div>
+          </div>
+          
+          <div style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Bus size={20} color="#60a5fa" />
+            <div>
+              <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontWeight: 'bold' }}>Vehículos</div>
+              <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{vehiculos.length} Registrados</div>
+            </div>
+          </div>
+          
+          <div style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <DollarSign size={20} color={deudas.length === 0 ? "#4ade80" : "#f87171"} />
+            <div>
+              <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontWeight: 'bold' }}>Deudas</div>
+              <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{deudas.length} Pendientes</div>
+            </div>
+          </div>
         </div>
       </div>
 

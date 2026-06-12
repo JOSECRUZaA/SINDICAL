@@ -42,27 +42,50 @@
 }
 
 .user-info {
-  margin-bottom: 2rem;
-  padding: 0 0.5rem;
+  display: none; /* Ocultamos la versión antigua */
 }
 
-.user-name {
+/* User Card in Footer */
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.user-card-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-card-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-card-name {
   font-weight: 700;
-  font-size: 1.1rem;
-  margin-top: 0.25rem;
+  font-size: 0.95rem;
   color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.user-role {
-  display: inline-block;
-  margin-top: 0.5rem;
-  padding: 0.25rem 0.5rem;
+.user-card-role {
   font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 0.25rem;
-  background: rgba(37, 99, 235, 0.1);
-  color: var(--accent-color);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .nav-menu {
@@ -102,6 +125,7 @@
 .sidebar-footer {
   padding: 1rem;
   border-top: 1px solid var(--border-color);
+  background: #f8fafc;
 }
 
 .logout-btn {
@@ -150,6 +174,20 @@
   border: none;
   color: var(--text-muted);
   cursor: pointer;
+}
+
+.header-date {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .header-date {
+    display: none; /* Ocultar fecha en móviles para ahorrar espacio */
+  }
 }
 
 .avatar {

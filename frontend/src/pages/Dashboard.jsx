@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Users, Bus, Map, FileText, DollarSign, Shield, Activity, Menu, X, UserCog, User, AlertTriangle } from 'lucide-react';
+import { LogOut, Users, Bus, Map, FileText, DollarSign, Shield, Activity, Menu, X, UserCog, User, AlertTriangle, Calendar } from 'lucide-react';
 import './Dashboard.css'; // Importamos el CSS dedicado
 
 const Dashboard = () => {
@@ -47,14 +47,6 @@ const Dashboard = () => {
         </div>
         
         <div className="sidebar-content">
-          <div className="user-info">
-            <div className="text-muted" style={{ fontSize: '0.85rem' }}>Bienvenido,</div>
-            <div className="user-name">{profile?.nombres || user?.email}</div>
-            <div className="user-role">
-              {profile?.rol || 'Rol no asignado'}
-            </div>
-          </div>
-
           <nav className="nav-menu">
             {navItems.filter(item => !profile?.rol || item.roles.includes(profile?.rol)).map(item => {
               const isActive = location.pathname.startsWith(item.path);
@@ -76,6 +68,19 @@ const Dashboard = () => {
         </div>
         
         <div className="sidebar-footer">
+          <div className="user-card">
+            <div className="user-card-avatar">
+              {profile?.nombres?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <div className="user-card-info">
+              <span className="user-card-name" title={profile?.nombres || user?.email}>
+                {profile?.nombres || user?.email}
+              </span>
+              <span className="user-card-role">
+                {profile?.rol || 'Rol no asignado'}
+              </span>
+            </div>
+          </div>
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={20} />
             <span>Cerrar Sesión</span>
@@ -86,11 +91,21 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="main-content">
         <header className="top-header">
-          <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={24} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
+              <Menu size={24} />
+            </button>
+            <div className="header-date">
+              <Calendar size={18} style={{ marginRight: '0.5rem', color: 'var(--primary-color)' }} />
+              {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+          </div>
           
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>¡Hola!</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{profile?.nombres || 'Usuario'}</span>
+            </div>
             <div className="avatar" title={profile?.nombres}>
               {profile?.nombres?.charAt(0).toUpperCase() || 'U'}
             </div>
