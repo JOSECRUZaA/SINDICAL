@@ -69,7 +69,7 @@ const Afiliados = () => {
         .select(`
           *,
           categorias_licencia(categoria),
-          perfiles(nombres, paterno)
+          perfiles(nombres, paterno, ci)
         `)
         .order('id_afiliado', { ascending: false });
         
@@ -580,7 +580,7 @@ const Afiliados = () => {
                 <div className="glass-panel" style={{padding: '1.5rem'}}>
                   <h4 style={{color: 'var(--primary-color)', marginBottom: '1rem'}}>Datos Sindicales</h4>
                   <p><strong>Tipo:</strong> {selectedAfiliado.tipo_afiliado}</p>
-                  <p><strong>Cédula:</strong> {selectedAfiliado.ci || 'No registrada'}</p>
+                  <p><strong>Cédula:</strong> {selectedAfiliado.perfiles?.ci || 'No registrada'}</p>
                   <p><strong>Categoría:</strong> {selectedAfiliado.categorias_licencia?.categoria || '-'}</p>
                   <p><strong>Estado:</strong> <span className={`badge ${getBadgeClass(selectedAfiliado.estado_organico)}`}>{selectedAfiliado.estado_organico}</span></p>
                   <p><strong>Perfil Web:</strong> {selectedAfiliado.perfiles ? `${selectedAfiliado.perfiles.nombres} ${selectedAfiliado.perfiles.paterno || ''}` : 'No vinculado'}</p>

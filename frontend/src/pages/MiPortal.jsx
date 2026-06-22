@@ -24,7 +24,7 @@ const MiPortal = () => {
     try {
       const { data: afData, error: afError } = await supabase
         .from('afiliados')
-        .select('*, categorias_licencia(categoria)')
+        .select('*, categorias_licencia(categoria), perfiles(ci)')
         .eq('id_perfil', profile.id_perfil)
         .single();
         
@@ -182,7 +182,7 @@ const MiPortal = () => {
               <CreditCard size={18} style={{ color: 'var(--text-muted)', marginTop: '2px' }} />
               <div>
                 <p className="text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>Cédula de Identidad</p>
-                <p style={{ fontSize: '1.05rem', fontWeight: '500', marginTop: '0.25rem' }}>{afiliadoData.ci || 'No registrada'}</p>
+                <p style={{ fontSize: '1.05rem', fontWeight: '500', marginTop: '0.25rem' }}>{afiliadoData.perfiles?.ci || 'No registrada'}</p>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
